@@ -1,8 +1,17 @@
+import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.io.GraphIOException;
+import edu.uci.ics.jung.io.GraphMLWriter;
+import edu.uci.ics.jung.io.graphml.EdgeMetadata;
+import edu.uci.ics.jung.io.graphml.GraphMLReader2;
+import edu.uci.ics.jung.io.graphml.GraphMetadata;
+import edu.uci.ics.jung.io.graphml.HyperEdgeMetadata;
+import edu.uci.ics.jung.io.graphml.NodeMetadata;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
@@ -14,28 +23,54 @@ import java.awt.Image;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import org.apache.commons.collections15.Factory;
+import org.apache.commons.collections15.Transformer;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
 
 import javax.swing.JToolBar;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
+import java.awt.SystemColor;
+import javax.swing.UIManager;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 public class NetworkWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -1880325660041879306L;
+	
+	//JMenu Items
+	JMenuItem mntmNew;
+	JMenuItem mntmOpen;
+	JMenuItem mntmSave;
+	JMenuItem mntmSaveAs;
+	JMenuItem mntmExit;
 	
 	//Graph items.
 	private Graph<Node, Link> graph;
     private int nodeCount, edgeCount;
     private EditingModalGraphMouse<Node, Link> gm;
+    private String filename = null;
     
     //Factories
     Factory<Node> nodeFactory;
@@ -56,6 +91,8 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			 					     "Simulate Current Topology" };
 	private String[] buttonText = {"DSL Node", "Voip Node", "Edge", "Core", "Gateway", "Transform", "Move", "Simulate"};
 	private final int SIZE = 20;
+	AbstractLayout<Node, Link> layout;
+	VisualizationViewer<Node, Link> pnlGraph;
 	
 	//Enum for mode.
 	private Node.NodeType state = null;
@@ -95,19 +132,39 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmNew = new JMenuItem("New");
+		mntmNew = new JMenuItem("New");
+		mntmNew.addActionListener(this);
 		mnFile.add(mntmNew);
 		
-		JMenu mnSaveAs = new JMenu("Save As...");
-		mnFile.add(mnSaveAs);
+		mntmOpen = new JMenuItem("Open...");
+		mntmOpen.addActionListener(this);
+		mnFile.add(mntmOpen);
+		
+		JSeparator sepTop = new JSeparator();
+		mnFile.add(sepTop);
+		
+		mntmSave = new JMenuItem("Save");
+		mntmSave.addActionListener(this);
+		mnFile.add(mntmSave);
+		
+		mntmSaveAs = new JMenuItem("Save As...");
+		mntmSaveAs.addActionListener(this);
+		mnFile.add(mntmSaveAs);
+		
+		JSeparator sepBottom = new JSeparator();
+		mnFile.add(sepBottom);
+		
+		mntmExit = new JMenuItem("Exit");
+		mntmExit.addActionListener(this);
+		mnFile.add(mntmExit);
 		contentPane = new JPanel();
-		contentPane.setBackground(Color.WHITE);
+		contentPane.setBackground(UIManager.getColor("Button.background"));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		Layout<Node, Link> layout = new StaticLayout<Node, Link>(graph);
-		VisualizationViewer<Node, Link> pnlGraph = new VisualizationViewer<Node, Link>(layout);
+		layout = new StaticLayout<Node, Link>(graph);
+		pnlGraph = new VisualizationViewer<Node, Link>(layout);
 		pnlGraph.setBackground(Color.WHITE);
 		contentPane.add(pnlGraph, BorderLayout.CENTER);
 		
@@ -165,33 +222,18 @@ public class NetworkWindow extends JFrame implements ActionListener {
         //Start the graph off in transforming mode.
         gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 	}
-	
-	private void createGraph(){
-		//Create the graph object and the nodes and link.
-        graph = new UndirectedSparseMultigraph<Node, Link>();
-        nodeCount = 0; edgeCount = 0;
-        
-        //We now need to define both the node and link factories.
-        nodeFactory = new Factory<Node>(){
-			public Node create() {
-				nodeCount++;
-				return new Node(state);
-			}
-        };
-        
-        edgeFactory = new Factory<Link>(){
-			public Link create() {
-				edgeCount++;
-				return new Link();
-			}
-        	
-        };
-	}
 
 	@Override
 	public void actionPerformed(ActionEvent event){
 		//Get the source of the click.
-		JButton clicked = (JButton) event.getSource();
+		JButton clicked = null;
+		try{
+			clicked = (JButton) event.getSource();
+		} catch (ClassCastException e){
+			menuEvent(event);
+			return;
+		}
+		
 		String tooltip = clicked.getToolTipText();
 		
 		//We now see which button in the toolbar was pressed.
@@ -238,5 +280,218 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			//Now we indicate the type of node.
 			state = null;
 		}
+	}
+
+	private void menuEvent(ActionEvent event) {
+		//Checks to see which object was clicked.
+		if (event.getSource().equals(mntmNew)){
+			createNew();
+		} else if (event.getSource().equals(mntmOpen)) {
+			openGraph();
+		} else if (event.getSource().equals(mntmSave)){
+			saveGraph(filename);
+		} else if (event.getSource().equals(mntmSaveAs)) {
+			saveGraph(null);
+		} else if (event.getSource().equals(mntmExit)) {
+			System.exit(0);
+		}
+	}
+
+	private void saveGraph(String fn) {
+		//Check to see if we need save as diagram.
+		if (fn == null){
+			//Prompts the user for a save file.
+			JFileChooser dialog = new JFileChooser();
+			
+			//Sets the file filter.
+			dialog.removeChoosableFileFilter(dialog.getFileFilter());
+			dialog.addChoosableFileFilter(new FileNameExtensionFilter("Topology File (.top)", "top"));
+			
+			int retCode = dialog.showSaveDialog(NetworkWindow.this);
+			
+			//Check the return code.
+			if (retCode != 0)
+				return;
+			
+			//Extract the filename.
+			filename = dialog.getSelectedFile().getAbsolutePath();
+			String winName = dialog.getSelectedFile().getName();
+			if (dialog.getFileFilter().getDescription().equals("Topology File (.top)") &&
+					!filename.endsWith("top")){
+				filename += ".top";
+				winName += ".top";
+			}
+			
+			//Sets the window name.
+			this.setTitle("Proactive QoS Monitoring Tool - [" + winName + "]");
+		}
+		
+		//Now we actually save the file.
+		GraphMLWriter<Node, Link> writer = new GraphMLWriter<Node, Link>();
+		PrintWriter out = null;
+		try {
+			//We create a writer for the file.
+			out = new PrintWriter(
+				      new BufferedWriter(
+				          new FileWriter(filename)));
+			
+			//We embed the X, Y coordinates.
+			writer.addVertexData("x", null, "0",
+					new Transformer<Node, String>() {
+						public String transform(Node v) {
+							return Double.toString(layout.getX(v));
+				        }
+				    }
+			);
+				 
+			writer.addVertexData("y", null, "0",
+					new Transformer<Node, String>() {
+				        public String transform(Node v) {
+				            return Double.toString(layout.getY(v));
+				       }
+				    }
+			);
+			
+			//Now we write the graph to the file.
+			writer.save(graph, out);
+				        
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private void openGraph() {
+		//We now choose to open a graph.
+		JFileChooser dialog = new JFileChooser();
+		
+		//Sets the file filter.
+		dialog.removeChoosableFileFilter(dialog.getFileFilter());
+		dialog.addChoosableFileFilter(new FileNameExtensionFilter("Topology File (.top)", "top"));
+		
+		int retCode = dialog.showOpenDialog(NetworkWindow.this);
+		
+		//Check the return code.
+		if (retCode != 0)
+			return;
+		
+		//Extract the filename.
+		filename = dialog.getSelectedFile().getAbsolutePath();
+		String winName = dialog.getSelectedFile().getName();
+		
+		//Sets the window name.
+		this.setTitle("Proactive QoS Monitoring Tool - [" + winName + "]");
+		
+		//Now we load the file.
+		try {
+			//We create a buffered reader.
+			BufferedReader fileReader = new BufferedReader(
+			        new FileReader(filename));
+			
+			//Create a transformer to read and view the graph elements.
+			Transformer<GraphMetadata, Graph<Node, Link>> graphTransformer = new Transformer<GraphMetadata,
+			                          														Graph<Node, Link>>() {
+				public Graph<Node, Link> transform(GraphMetadata metadata) {
+			        //We check what type of graph we have.
+					if (!metadata.getEdgeDefault().equals(metadata.getEdgeDefault().DIRECTED)) {
+			            return new UndirectedSparseMultigraph<Node, Link>();
+			        }
+					
+					return null;
+			      }
+			};
+			
+			//Create a vertex transformer to produce the nodes.
+			Transformer<NodeMetadata, Node> vertexTransformer = new Transformer<NodeMetadata, Node>() {
+				public Node transform(NodeMetadata metadata) {
+					Node v = nodeFactory.create();
+			        v.setX(Double.parseDouble(
+			                           metadata.getProperty("x")));
+			        v.setY(Double.parseDouble(
+			                           metadata.getProperty("y")));
+			        return v;
+			    }
+			};
+			
+			//Create an edge transformer for the link.
+			 Transformer<EdgeMetadata, Link> edgeTransformer = new Transformer<EdgeMetadata, Link>() {
+			     public Link transform(EdgeMetadata metadata) {
+			         Link e = edgeFactory.create();
+			         return e;
+			     }
+			 };
+			 
+			 //Create a hyperedge transformer.
+			 Transformer<HyperEdgeMetadata, Link> hyperEdgeTransformer
+			 = new Transformer<HyperEdgeMetadata, Link>() {
+			      public Link transform(HyperEdgeMetadata metadata) {
+			          Link e = edgeFactory.create();
+			          return e;
+			      }
+			 };
+			 
+			 //Creates the object to read.
+			 GraphMLReader2<Graph<Node, Link>, Node, Link> reader = 
+					 new GraphMLReader2<Graph<Node, Link>, Node, Link> 
+			 			(fileReader, graphTransformer, vertexTransformer, edgeTransformer, hyperEdgeTransformer);
+			 
+			 //Reads the graph.
+			 graph = reader.readGraph();
+			 
+			 //Resets the graph.
+			 layout = new StaticLayout<Node, Link>(graph, new Transformer<Node, Point2D>() {
+				   public Point2D transform(Node v) {
+				       Point2D p = new Point2D.Double(v.getX(), v.getY());
+				       return p;
+				   }               
+			 });
+			 
+			 //Repaints the panel.
+			 pnlGraph.repaint();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return;
+		} catch (GraphIOException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+	}
+
+	/**
+	 * This method clears the previously defined topology and refreshes everything.
+	 */
+	private void createNew() {
+		//Refreshes all the variables.
+		createGraph();
+		layout.reset();
+		layout.setGraph(graph);
+		
+		//Repaints the panel.
+		pnlGraph.repaint();
+	}
+	
+	
+	private void createGraph(){
+		//Create the graph object and the nodes and link.
+        graph = new UndirectedSparseMultigraph<Node, Link>();
+        nodeCount = 0; edgeCount = 0;
+        
+        //We now need to define both the node and link factories.
+        nodeFactory = new Factory<Node>(){
+			public Node create() {
+				nodeCount++;
+				return new Node(state);
+			}
+        };
+        
+        edgeFactory = new Factory<Link>(){
+			public Link create() {
+				edgeCount++;
+				return new Link();
+			}
+        	
+        };
 	}
 }
