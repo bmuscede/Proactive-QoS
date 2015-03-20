@@ -10,18 +10,24 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Image;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import org.apache.commons.collections15.Factory;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
+
 import javax.swing.JToolBar;
+import javax.swing.JMenuItem;
 
 public class NetworkWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -1880325660041879306L;
@@ -37,13 +43,19 @@ public class NetworkWindow extends JFrame implements ActionListener {
     
     //Swing items.
 	private JPanel contentPane;
-	private String[] iconFiles = {"dsl_end.gif", "voip_end.gif", "edge.gif", "core.gif", "gateway.gif", "transform.gif" };
+	private final String IMAGE_LOC = "images";
+	private String[] iconFiles = { "dsl_end.png", "voip_end.png", "edge.png", "core.png", "gateway.png", "transform.png",
+								   "move.png", "simulate.png"};
 	private String[] buttonLabels = {"Create DSL Customer Node", 
 			 						 "Create VoIP Customer Node", 
 			 					     "Create Edge Router", 
 			 					     "Create Core Router", 
 			 					     "Create Gateway Router", 
-			 					     "Transform" };
+			 					     "Move View",
+			 					     "Move Individual Nodes", 
+			 					     "Simulate Current Topology" };
+	private String[] buttonText = {"DSL Node", "Voip Node", "Edge", "Core", "Gateway", "Transform", "Move", "Simulate"};
+	private final int SIZE = 20;
 	
 	//Enum for mode.
 	private Node.NodeType state = null;
@@ -76,6 +88,18 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		//Draw the window components.
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 630, 450);
+		
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmNew = new JMenuItem("New");
+		mnFile.add(mntmNew);
+		
+		JMenu mnSaveAs = new JMenu("Save As...");
+		mnFile.add(mnSaveAs);
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -90,18 +114,38 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		JToolBar tblOperations = new JToolBar();
 
 		//Generate image operations.
-		ImageIcon[] icons = new ImageIcon[iconFiles.length];
+		String[] icons = new String[iconFiles.length];
 		JButton[] buttons = new JButton[buttonLabels.length];
 		  
 		//Insert them into the toolbar.
 		for (int i = 0; i < buttonLabels.length; ++i) {
-			icons[i] = new ImageIcon(iconFiles[i]);
-		    buttons[i] = new JButton(icons[i]);
+			//Create the new button.
+			buttons[i] = new JButton();
+			
+			//First, set the button icon.
+			icons[i] = System.getProperty("user.dir") + "/" + IMAGE_LOC + "/" + iconFiles[i];		
+			ImageIcon icon = new ImageIcon(icons[i]);
+			  
+			//Modify the image.
+			Image img = icon.getImage();
+			img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
+			icon = new ImageIcon(img);
+			
+			//Set it as the button.
+			buttons[i].setIcon(icon);
+			
+			//Add the text.
+			buttons[i].setVerticalTextPosition(SwingConstants.BOTTOM);
+		    buttons[i].setHorizontalTextPosition(SwingConstants.CENTER);
+		    
+		    //Set the button properties.
 		    buttons[i].addActionListener(this);
 		    buttons[i].setToolTipText(buttonLabels[i]);
-		      
+		    buttons[i].setText(buttonText[i]);
+		    
 		    //Check to see if we need a separator.
-		    if (iconFiles[i].equals("edge.gif") || iconFiles[i].equals("link.gif")){
+		    if (iconFiles[i].equals("edge.png") || iconFiles[i].equals("transform.png") ||
+		    	iconFiles[i].equals("simulate.png")){
 		    	tblOperations.addSeparator();
 		    }
 		    tblOperations.add(buttons[i]);
@@ -184,6 +228,12 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		} else if (tooltip.equals(buttonLabels[5])){
 			//We set the mode to transform.
 			gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
+			
+			//Now we indicate the type of node.
+			state = null;
+		} else if (tooltip.equals(buttonLabels[6])){
+			//We now set the mode to move nodes.
+			gm.setMode(ModalGraphMouse.Mode.PICKING);
 			
 			//Now we indicate the type of node.
 			state = null;
