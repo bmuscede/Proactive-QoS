@@ -31,6 +31,10 @@ public class NetworkWindow extends JFrame implements ActionListener {
     private int nodeCount, edgeCount;
     private EditingModalGraphMouse<Node, Link> gm;
     
+    //Factories
+    Factory<Node> nodeFactory;
+    Factory<Link> edgeFactory;
+    
     //Swing items.
 	private JPanel contentPane;
 	private String[] iconFiles = {"dsl_end.gif", "voip_end.gif", "edge.gif", "core.gif", "gateway.gif", "transform.gif" };
@@ -42,8 +46,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			 					     "Transform" };
 	
 	//Enum for mode.
-	private enum GraphMode { DSL_END, VOIP_END, EDGE, CORE, GATEWAY };
-	private GraphMode state = null;
+	private Node.NodeType state = null;
 	
 	/**
 	 * Launch the application.
@@ -111,7 +114,8 @@ public class NetworkWindow extends JFrame implements ActionListener {
         pnlGraph.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<Link>());
         
         //Allow the user to add items using their mouse.
-        gm = new EditingModalGraphMouse<Node, Link>(pnlGraph.getRenderContext(), null, null); 
+        gm = new EditingModalGraphMouse<Node, Link>(pnlGraph.getRenderContext(), 
+        											nodeFactory, edgeFactory); 
         pnlGraph.setGraphMouse(gm);
         
         //Start the graph off in transforming mode.
@@ -122,6 +126,22 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		//Create the graph object and the nodes and link.
         graph = new UndirectedSparseMultigraph<Node, Link>();
         nodeCount = 0; edgeCount = 0;
+        
+        //We now need to define both the node and link factories.
+        nodeFactory = new Factory<Node>(){
+			public Node create() {
+				nodeCount++;
+				return new Node(state);
+			}
+        };
+        
+        edgeFactory = new Factory<Link>(){
+			public Link create() {
+				edgeCount++;
+				return new Link();
+			}
+        	
+        };
 	}
 
 	@Override
@@ -136,7 +156,31 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			gm.setMode(ModalGraphMouse.Mode.EDITING);
 			
 			//Now we indicate the type of node.
-			state = GraphMode.DSL_END;
+			state = Node.NodeType.DSL_END;
+		} else if (tooltip.equals(buttonLabels[1])){
+			//We set the mode to transform.
+			gm.setMode(ModalGraphMouse.Mode.EDITING);
+			
+			//Now we indicate the type of node.
+			state = Node.NodeType.VOIP_END;
+		} else if (tooltip.equals(buttonLabels[2])){
+			//We set the mode to transform.
+			gm.setMode(ModalGraphMouse.Mode.EDITING);
+			
+			//Now we indicate the type of node.
+			state = Node.NodeType.EDGE;
+		} else if (tooltip.equals(buttonLabels[3])){
+			//We set the mode to transform.
+			gm.setMode(ModalGraphMouse.Mode.EDITING);
+			
+			//Now we indicate the type of node.
+			state = Node.NodeType.CORE;
+		} else if (tooltip.equals(buttonLabels[4])){
+			//We set the mode to transform.
+			gm.setMode(ModalGraphMouse.Mode.EDITING);
+			
+			//Now we indicate the type of node.
+			state = Node.NodeType.GATEWAY;
 		} else if (tooltip.equals(buttonLabels[5])){
 			//We set the mode to transform.
 			gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
@@ -145,5 +189,4 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			state = null;
 		}
 	}
-
 }
