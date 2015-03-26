@@ -1,15 +1,13 @@
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
-import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 import edu.uci.ics.jung.io.GraphIOException;
 import edu.uci.ics.jung.io.GraphMLWriter;
 import edu.uci.ics.jung.io.graphml.EdgeMetadata;
 import edu.uci.ics.jung.io.graphml.GraphMLReader2;
 import edu.uci.ics.jung.io.graphml.GraphMetadata;
+import edu.uci.ics.jung.io.graphml.GraphMetadata.EdgeDefault;
 import edu.uci.ics.jung.io.graphml.HyperEdgeMetadata;
 import edu.uci.ics.jung.io.graphml.NodeMetadata;
 import edu.uci.ics.jung.samples.VertexImageShaperDemo.DemoVertexIconShapeTransformer;
@@ -20,10 +18,7 @@ import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
-
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Image;
 
@@ -52,17 +47,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JToolBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-import java.awt.SystemColor;
 import javax.swing.UIManager;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
 public class NetworkWindow extends JFrame implements ActionListener {
@@ -433,8 +424,9 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			Transformer<GraphMetadata, Graph<Node, Link>> graphTransformer = new Transformer<GraphMetadata,
 			                          														Graph<Node, Link>>() {
 				public Graph<Node, Link> transform(GraphMetadata metadata) {
-			        //We check what type of graph we have.
-					if (!metadata.getEdgeDefault().equals(metadata.getEdgeDefault().DIRECTED)) {
+			        metadata.getEdgeDefault();
+					//We check what type of graph we have.
+					if (!metadata.getEdgeDefault().equals(EdgeDefault.DIRECTED)) {
 			            return new UndirectedSparseMultigraph<Node, Link>();
 			        }
 					
@@ -516,13 +508,13 @@ public class NetworkWindow extends JFrame implements ActionListener {
 	private void createGraph(){
 		//Create the graph object and the nodes and link.
         graph = new UndirectedSparseMultigraph<Node, Link>();
-        nodeCount = 0; edgeCount = 0;
+        setNodeCount(0); setEdgeCount(0);
         
         //We now need to define both the node and link factories.
         nodeFactory = new Factory<Node>(){
 			public Node create() {
 				//Set the node count.
-				nodeCount++;
+				setNodeCount(getNodeCount() + 1);
 				
 				//We now create the new Node.
 				Node nNode = new Node(state);
@@ -543,10 +535,23 @@ public class NetworkWindow extends JFrame implements ActionListener {
         
         edgeFactory = new Factory<Link>(){
 			public Link create() {
-				edgeCount++;
+				setEdgeCount(getEdgeCount() + 1);
 				return new Link();
 			}
         	
         };
+	}
+
+	public int getNodeCount() {
+		return nodeCount;
+	}
+	public void setNodeCount(int nodeCount) {
+		this.nodeCount = nodeCount;
+	}
+	public int getEdgeCount() {
+		return edgeCount;
+	}
+	public void setEdgeCount(int edgeCount) {
+		this.edgeCount = edgeCount;
 	}
 }
