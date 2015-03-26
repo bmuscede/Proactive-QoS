@@ -12,15 +12,22 @@ import edu.uci.ics.jung.io.graphml.GraphMLReader2;
 import edu.uci.ics.jung.io.graphml.GraphMetadata;
 import edu.uci.ics.jung.io.graphml.HyperEdgeMetadata;
 import edu.uci.ics.jung.io.graphml.NodeMetadata;
+import edu.uci.ics.jung.samples.VertexImageShaperDemo.DemoVertexIconShapeTransformer;
+import edu.uci.ics.jung.samples.VertexImageShaperDemo.DemoVertexIconTransformer;
+import edu.uci.ics.jung.visualization.LayeredIcon;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.decorators.VertexIconShapeTransformer;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Image;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -46,6 +53,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JToolBar;
 import javax.swing.JMenuItem;
@@ -71,14 +80,17 @@ public class NetworkWindow extends JFrame implements ActionListener {
     private int nodeCount, edgeCount;
     private EditingModalGraphMouse<Node, Link> gm;
     private String filename = null;
+    private Map<Node, Icon> iconMap; 
     
     //Factories
-    Factory<Node> nodeFactory;
-    Factory<Link> edgeFactory;
+    private Factory<Node> nodeFactory;
+    private Factory<Link> edgeFactory;
     
     //Swing items.
 	private JPanel contentPane;
 	private final String IMAGE_LOC = "images";
+	protected String[] icons;
+	protected ImageIcon[] preloadIcons;
 	private String[] iconFiles = { "dsl_end.png", "voip_end.png", "edge.png", "core.png", "gateway.png", "transform.png",
 								   "move.png", "simulate.png"};
 	private String[] buttonLabels = {"Create DSL Customer Node", 
@@ -91,8 +103,8 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			 					     "Simulate Current Topology" };
 	private String[] buttonText = {"DSL Node", "Voip Node", "Edge", "Core", "Gateway", "Transform", "Move", "Simulate"};
 	private final int SIZE = 20;
-	AbstractLayout<Node, Link> layout;
-	VisualizationViewer<Node, Link> pnlGraph;
+	private AbstractLayout<Node, Link> layout;
+	private VisualizationViewer<Node, Link> pnlGraph;
 	
 	//Enum for mode.
 	private Node.NodeType state = null;
@@ -164,6 +176,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
 		layout = new StaticLayout<Node, Link>(graph);
+		
 		pnlGraph = new VisualizationViewer<Node, Link>(layout);
 		pnlGraph.setBackground(Color.WHITE);
 		contentPane.add(pnlGraph, BorderLayout.CENTER);
@@ -171,7 +184,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		JToolBar tblOperations = new JToolBar();
 
 		//Generate image operations.
-		String[] icons = new String[iconFiles.length];
+		icons = new String[iconFiles.length];
 		JButton[] buttons = new JButton[buttonLabels.length];
 		  
 		//Insert them into the toolbar.
@@ -221,6 +234,33 @@ public class NetworkWindow extends JFrame implements ActionListener {
         
         //Start the graph off in transforming mode.
         gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
+        
+        //Sets up the icons for the nodes.
+        final DemoVertexIconTransformer<Node> vertexIconTransformer = 
+        		new DemoVertexIconTransformer<Node>();
+        final DemoVertexIconShapeTransformer<Node> vertexIconShapeTransformer =
+        		new DemoVertexIconShapeTransformer<Node>(new EllipseVertexShapeTransformer<Node>());
+        
+        //Creates the icon map.
+        iconMap = new HashMap<Node, Icon>();
+        
+        vertexIconShapeTransformer.setIconMap(iconMap);
+        vertexIconTransformer.setIconMap(iconMap);
+        
+        pnlGraph.getRenderContext().setVertexIconTransformer(vertexIconTransformer);
+        pnlGraph.getRenderContext().setVertexShapeTransformer(vertexIconShapeTransformer);
+        
+        //Finally, preloads the image icons in to ensure fast loading.
+        preloadIcons = new ImageIcon[icons.length];
+        for (int i = 0; i < preloadIcons.length; i++){
+        	preloadIcons[i] = new ImageIcon(icons[i]);
+        	
+        	//Modify the image.
+			Image img = preloadIcons[i].getImage();
+			img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
+			preloadIcons[i] = new ImageIcon(img);
+        }
+        
 	}
 
 	@Override
@@ -481,8 +521,23 @@ public class NetworkWindow extends JFrame implements ActionListener {
         //We now need to define both the node and link factories.
         nodeFactory = new Factory<Node>(){
 			public Node create() {
+				//Set the node count.
 				nodeCount++;
-				return new Node(state);
+				
+				//We now create the new Node.
+				Node nNode = new Node(state);
+				
+				//Finally, we assign the icon to the graph.
+				int stateVal = state.getNumVal();
+				try {
+	        		Icon icon = new LayeredIcon(preloadIcons[stateVal].getImage());
+	        		iconMap.put(nNode, icon);
+	        	} catch (Exception e){
+	        		e.printStackTrace();
+	        	}
+				
+				//Return the node.
+				return nNode;
 			}
         };
         
