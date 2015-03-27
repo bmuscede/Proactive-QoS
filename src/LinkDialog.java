@@ -116,7 +116,7 @@ public class LinkDialog extends JDialog {
 				break;
 			case "Mbps":
 			default:
-				temp = Link.BAND_TYPE.TBPS;
+				temp = Link.BAND_TYPE.MBPS;
 		}
 		
 		return temp;

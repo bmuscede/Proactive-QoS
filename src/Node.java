@@ -34,6 +34,10 @@ public class Node {
 		return node.getName();
 	}
 
+	public NodeType getType(){
+		return node;
+	}
+	
 	public void setX(double xVal) {
 		x = xVal;
 	}

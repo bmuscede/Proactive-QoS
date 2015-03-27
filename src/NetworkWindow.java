@@ -314,14 +314,23 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			//Now we indicate the type of node.
 			state = null;
 		} else {
-			//The simulate button has been pressed.
-			int[] dslBenchmarks;
-			int[] voipBenchmarks;
+			//We start the simulation dialog.
+			SimulationDialog parameters = new SimulationDialog();
+			parameters.setVisible(true);
 			
-			int failureRate;
+			//Check whether accepted or not.
+			if (!parameters.isAccepted()){
+				return;
+			}
+			
+			//Get specific simulation parameters.
+			int[] dslBenchmarks = parameters.getDSL();
+			int[] voipBenchmarks = parameters.getVoIP();
+			int failureRate = parameters.getFailure();
 			
 			//With these values, we start the simulation.
-			
+			control = new NetworkController(graph, dslBenchmarks, voipBenchmarks, failureRate);
+			control.start();
 		}
 	}
 

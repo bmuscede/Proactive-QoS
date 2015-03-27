@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
@@ -8,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.border.TitledBorder;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -16,10 +18,15 @@ import javax.swing.JComboBox;
 import javax.swing.SwingConstants;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 
 public class SimulationDialog extends JDialog {
-
+	//Modal Parameters
+	private boolean accepted;
+	
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtJitterDSL;
 	private JTextField txtLatencyDSL;
@@ -27,13 +34,20 @@ public class SimulationDialog extends JDialog {
 	private JTextField txtJitterVOIP;
 	private JTextField txtLatencyVOIP;
 	private JTextField txtThroughputVOIP;
-
+	private JSpinner spnFailure;
+	private JSpinner spnPacketLossDSL;
+	private JSpinner spnPacketLossVOIP;
+	private JComboBox cmbTypeDSL;
+	private JComboBox cmbTypeVOIP;
+	
 	/**
 	 * Create the dialog.
 	 */
 	public SimulationDialog() {
+		accepted = false;
+		
+		setModalityType(ModalityType.APPLICATION_MODAL);
 		setResizable(false);
-		setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		setTitle("Proactive QoS Monitoring Tool - [Simulate]");
 		setBounds(100, 100, 326, 450);
 		getContentPane().setLayout(new BorderLayout());
@@ -55,6 +69,7 @@ public class SimulationDialog extends JDialog {
 		pnlDSL.setLayout(null);
 		
 		JLabel lblPacketLoss = new JLabel("Packet Loss:");
+		lblPacketLoss.setForeground(Color.BLACK);
 		lblPacketLoss.setBounds(10, 23, 89, 14);
 		pnlDSL.add(lblPacketLoss);
 		
@@ -70,41 +85,41 @@ public class SimulationDialog extends JDialog {
 		lblThroughput.setBounds(10, 100, 89, 14);
 		pnlDSL.add(lblThroughput);
 		
-		JSpinner spnPacketLossDSL = new JSpinner();
+		spnPacketLossDSL = new JSpinner();
 		spnPacketLossDSL.setModel(new SpinnerNumberModel(0, 0, 100, 1));
-		spnPacketLossDSL.setBounds(82, 20, 63, 20);
+		spnPacketLossDSL.setBounds(90, 19, 63, 20);
 		pnlDSL.add(spnPacketLossDSL);
 		
 		JLabel lblPercent = new JLabel("%");
-		lblPercent.setBounds(155, 23, 46, 14);
+		lblPercent.setBounds(163, 22, 46, 14);
 		pnlDSL.add(lblPercent);
 		
 		txtJitterDSL = new JTextField();
-		txtJitterDSL.setBounds(82, 45, 86, 20);
+		txtJitterDSL.setBounds(90, 44, 86, 20);
 		pnlDSL.add(txtJitterDSL);
 		txtJitterDSL.setColumns(10);
 		
 		JLabel lblMs = new JLabel("ms");
-		lblMs.setBounds(178, 48, 46, 14);
+		lblMs.setBounds(186, 47, 46, 14);
 		pnlDSL.add(lblMs);
 		
 		txtLatencyDSL = new JTextField();
 		txtLatencyDSL.setColumns(10);
-		txtLatencyDSL.setBounds(82, 70, 86, 20);
+		txtLatencyDSL.setBounds(90, 69, 86, 20);
 		pnlDSL.add(txtLatencyDSL);
 		
 		JLabel label = new JLabel("ms");
-		label.setBounds(178, 73, 46, 14);
+		label.setBounds(186, 72, 46, 14);
 		pnlDSL.add(label);
 		
 		txtThroughputDSL = new JTextField();
 		txtThroughputDSL.setColumns(10);
-		txtThroughputDSL.setBounds(82, 97, 86, 20);
+		txtThroughputDSL.setBounds(90, 96, 86, 20);
 		pnlDSL.add(txtThroughputDSL);
 		
-		JComboBox cmbTypeDSL = new JComboBox();
+		cmbTypeDSL = new JComboBox();
 		cmbTypeDSL.setModel(new DefaultComboBoxModel(new String[] {"Kbps", "Mbps", "Gbps", "Tbps"}));
-		cmbTypeDSL.setBounds(178, 97, 63, 20);
+		cmbTypeDSL.setBounds(186, 96, 63, 20);
 		pnlDSL.add(cmbTypeDSL);
 		
 		JPanel pnlVoIP = new JPanel();
@@ -113,44 +128,44 @@ public class SimulationDialog extends JDialog {
 		contentPanel.add(pnlVoIP);
 		pnlVoIP.setLayout(null);
 		
-		JComboBox cmbTypeVOIP = new JComboBox();
+		cmbTypeVOIP = new JComboBox();
 		cmbTypeVOIP.setModel(new DefaultComboBoxModel(new String[] {"Kbps", "Mbps", "Gbps", "Tbps"}));
-		cmbTypeVOIP.setBounds(178, 94, 63, 20);
+		cmbTypeVOIP.setBounds(188, 94, 63, 20);
 		pnlVoIP.add(cmbTypeVOIP);
 		
 		JLabel label_1 = new JLabel("Packet Loss:");
 		label_1.setBounds(10, 20, 89, 14);
 		pnlVoIP.add(label_1);
 		
-		JSpinner spnPacketLossVOIP = new JSpinner();
-		spnPacketLossVOIP.setBounds(82, 17, 63, 20);
+		spnPacketLossVOIP = new JSpinner();
+		spnPacketLossVOIP.setBounds(92, 17, 63, 20);
 		pnlVoIP.add(spnPacketLossVOIP);
 		
 		JLabel label_2 = new JLabel("%");
-		label_2.setBounds(155, 20, 46, 14);
+		label_2.setBounds(165, 20, 46, 14);
 		pnlVoIP.add(label_2);
 		
 		JLabel label_3 = new JLabel("ms");
-		label_3.setBounds(178, 45, 46, 14);
+		label_3.setBounds(188, 45, 46, 14);
 		pnlVoIP.add(label_3);
 		
 		JLabel label_4 = new JLabel("ms");
-		label_4.setBounds(178, 70, 46, 14);
+		label_4.setBounds(188, 70, 46, 14);
 		pnlVoIP.add(label_4);
 		
 		txtJitterVOIP = new JTextField();
 		txtJitterVOIP.setColumns(10);
-		txtJitterVOIP.setBounds(82, 42, 86, 20);
+		txtJitterVOIP.setBounds(92, 42, 86, 20);
 		pnlVoIP.add(txtJitterVOIP);
 		
 		txtLatencyVOIP = new JTextField();
 		txtLatencyVOIP.setColumns(10);
-		txtLatencyVOIP.setBounds(82, 67, 86, 20);
+		txtLatencyVOIP.setBounds(92, 67, 86, 20);
 		pnlVoIP.add(txtLatencyVOIP);
 		
 		txtThroughputVOIP = new JTextField();
 		txtThroughputVOIP.setColumns(10);
-		txtThroughputVOIP.setBounds(82, 94, 86, 20);
+		txtThroughputVOIP.setBounds(92, 94, 86, 20);
 		pnlVoIP.add(txtThroughputVOIP);
 		
 		JLabel label_5 = new JLabel("Throughput:");
@@ -175,12 +190,12 @@ public class SimulationDialog extends JDialog {
 		lblErrorRate.setBounds(10, 24, 90, 14);
 		pnlOther.add(lblErrorRate);
 		
-		JSpinner spinner = new JSpinner();
-		spinner.setBounds(82, 21, 63, 20);
-		pnlOther.add(spinner);
+		spnFailure = new JSpinner();
+		spnFailure.setBounds(93, 21, 63, 20);
+		pnlOther.add(spnFailure);
 		
 		JLabel label_8 = new JLabel("%");
-		label_8.setBounds(155, 24, 21, 14);
+		label_8.setBounds(166, 24, 21, 14);
 		pnlOther.add(label_8);
 		{
 			JPanel buttonPane = new JPanel();
@@ -188,15 +203,134 @@ public class SimulationDialog extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						//We first check for errors.
+						boolean error = false;
+						try {
+							Integer.parseInt(txtJitterDSL.getText());
+						} catch (NumberFormatException e) {
+							error = true;
+							txtJitterDSL.setForeground(Color.RED);
+						}
+						try {
+							Integer.parseInt(txtLatencyDSL.getText());
+						} catch (NumberFormatException e) {
+							error = true;
+							txtLatencyDSL.setForeground(Color.RED);
+						}
+						try {
+							Integer.parseInt(txtThroughputDSL.getText());
+						} catch (NumberFormatException e) {
+							error = true;
+							txtThroughputDSL.setForeground(Color.RED);
+						}
+						try {
+							Integer.parseInt(txtJitterVOIP.getText());
+						} catch (NumberFormatException e) {
+							error = true;
+							txtJitterVOIP.setForeground(Color.RED);
+						}
+						try {
+							Integer.parseInt(txtLatencyVOIP.getText());
+						} catch (NumberFormatException e) {
+							error = true;
+							txtLatencyVOIP.setForeground(Color.RED);
+						}
+						try {
+							Integer.parseInt(txtThroughputVOIP.getText());
+						} catch (NumberFormatException e) {
+							error = true;
+							txtThroughputVOIP.setForeground(Color.RED);
+						}
+						
+						//Sees if there is an error.
+						if (error){
+							JOptionPane.showMessageDialog(null, "Please fix the marked error(s).\n" +
+									"Valid numbers required!", 
+									"Proactive QoS Monitoring Tool", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+						
+						accepted = true;
+						dispose();
+					}
+				});
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						dispose();
+					}
+				});
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}
 		}
+	}
+	
+	public boolean isAccepted(){
+		return accepted;
+	}
+
+	public int[] getDSL() {
+		//Create an array for parameters.
+		int[] parameters = new int[5];
+		parameters[0] = (Integer) spnPacketLossDSL.getValue();
+		parameters[1] = Integer.parseInt(txtJitterDSL.getText());
+		parameters[2] = Integer.parseInt(txtLatencyDSL.getText());
+		parameters[3] = Integer.parseInt(txtThroughputDSL.getText());
+		
+		switch ((String) cmbTypeDSL.getSelectedItem()){
+			case "Kbps":
+				parameters[4] = Link.BAND_TYPE.KBPS.getBitNum();
+				break;
+			case "Tbps":
+				parameters[4] = Link.BAND_TYPE.TBPS.getBitNum();
+				break;
+			case "Gbps":
+				parameters[4] = Link.BAND_TYPE.GPBS.getBitNum();
+				break;
+			case "Mbps":
+			default:
+				parameters[4] = Link.BAND_TYPE.MBPS.getBitNum();
+		}
+		
+		return parameters;
+	}
+
+	public int[] getVoIP() {
+		//Create an array for parameters.
+		int[] parameters = new int[5];
+		parameters[0] = (Integer) spnPacketLossVOIP.getValue();
+		parameters[1] = Integer.parseInt(txtJitterVOIP.getText());
+		parameters[2] = Integer.parseInt(txtLatencyVOIP.getText());
+		parameters[3] = Integer.parseInt(txtThroughputVOIP.getText());
+		
+		switch ((String) cmbTypeVOIP.getSelectedItem()){
+			case "Kbps":
+				parameters[4] = Link.BAND_TYPE.KBPS.getBitNum();
+				break;
+			case "Tbps":
+				parameters[4] = Link.BAND_TYPE.TBPS.getBitNum();
+				break;
+			case "Gbps":
+				parameters[4] = Link.BAND_TYPE.GPBS.getBitNum();
+				break;
+			case "Mbps":
+			default:
+				parameters[4] = Link.BAND_TYPE.MBPS.getBitNum();
+		}
+		
+		return parameters;
+	}
+
+	public int getFailure() {
+		//We return the value of the failure spinner.
+		return (Integer) spnFailure.getValue();
 	}
 }
