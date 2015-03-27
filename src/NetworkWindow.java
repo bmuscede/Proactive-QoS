@@ -535,8 +535,19 @@ public class NetworkWindow extends JFrame implements ActionListener {
         
         edgeFactory = new Factory<Link>(){
 			public Link create() {
+				//We need the bandwidth of the link.
+				LinkDialog link = new LinkDialog();
+				link.setVisible(true);
+				
+				//Check to see status.
+				if (link.isAccepted() == false)
+					return null;
+				
+				int bandwidth = link.getBandwidth();
+				Link.BAND_TYPE type = link.getBandType();
+				
 				setEdgeCount(getEdgeCount() + 1);
-				return new Link();
+				return new Link(bandwidth, type);
 			}
         	
         };

@@ -2,16 +2,22 @@
 public class Node {
 	//Required to define the enum.
 	public static enum NodeType { 
-		DSL_END(0), VOIP_END(1), EDGE(2), CORE(3), GATEWAY(4);
+		DSL_END(0, "DSL User"), VOIP_END(1, "VoIP User"), EDGE(2, "Edge"), CORE(3, "Core"), GATEWAY(4, "Gateway");
 
 	    private int numVal;
-
-	    NodeType(int numVal) {
+	    private String name;
+	    
+	    NodeType(int numVal, String name) {
 	        this.numVal = numVal;
+	        this.name = name;
 	    }
 
 	    public int getNumVal() {
 	        return numVal;
+	    }
+	    
+	    public String getName(){
+	    	return name;
 	    }
 	};
 	
@@ -25,7 +31,7 @@ public class Node {
 	}
 	
 	public String toString(){
-		return node.name();
+		return node.getName();
 	}
 
 	public void setX(double xVal) {
