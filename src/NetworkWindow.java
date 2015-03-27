@@ -59,6 +59,9 @@ import java.awt.geom.Point2D;
 public class NetworkWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -1880325660041879306L;
 	
+	//Main network controller.
+	public NetworkController control;
+	
 	//JMenu Items
 	JMenuItem mntmNew;
 	JMenuItem mntmOpen;
@@ -310,6 +313,15 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			
 			//Now we indicate the type of node.
 			state = null;
+		} else {
+			//The simulate button has been pressed.
+			int[] dslBenchmarks;
+			int[] voipBenchmarks;
+			
+			int failureRate;
+			
+			//With these values, we start the simulation.
+			
 		}
 	}
 
