@@ -1,5 +1,6 @@
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Vector;
 import edu.uci.ics.jung.graph.Graph;
 
@@ -60,9 +61,67 @@ public class NetworkController {
 		}
 	}
 
-	public int[] requestData(Node.NodeType type) {
-		System.out.println("Controller sending data to " + type.getName());
+	private boolean randomizeError(){
+		//Create new random generator.
+		Random randomGenerator = new Random();
 		
+		//Gets a random integer.
+		int randInteger = randomGenerator.nextInt(100);
+		
+		//Checks to see if the integer falls outside of the failure rate.
+		if (randInteger > failureRate) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public int[] requestData(Node.NodeType type) {
+		//Determines whether there is an error.
+		boolean error = randomizeError();
+		int[] valuesQoS;
+		
+		if (error){
+			//Generates data with random error.
+			valuesQoS = generateRandomError(type);
+			System.out.println("Error for: " + type.getName());
+		} else {
+			//Generates normal QoS.
+			valuesQoS = generateRandomNormal(type);
+		}
+		
+		return valuesQoS;
+	}
+
+	private int[] generateRandomError(Node.NodeType type) {
 		return null;
+	}
+	
+	private int[] generateRandomNormal(Node.NodeType type) {
+		//Random generator.
+		Random generator = new Random();
+		
+		//Creates a new integer array.
+		int[] qosValues = new int[5];
+		for (int i = 0; i < qosValues.length; i++){
+			//Gets the current benchmark.
+			int currentBenchmark = (type.getNumVal() == Node.NodeType.DSL_END.getNumVal())
+					 				? dslBenchmarks[i] : voipBenchmarks[i];
+					 				
+			//We check for what metric we are calculating.
+			if (i == 3){
+				//Throughput.
+				qosValues[i] = currentBenchmark + generator.nextInt(1000 - currentBenchmark);
+			} if (i == 4) {
+				//Throughput Indicator.
+				qosValues[i] = currentBenchmark + generator.nextInt(Link.BAND_TYPE.NUM_INTERNAL);
+			} else {
+				//Everything else.
+				qosValues[i] = generator.nextInt(currentBenchmark);
+			}
+		}
+		
+		//Returns the value to the controller.
+		return qosValues;
 	}
 }

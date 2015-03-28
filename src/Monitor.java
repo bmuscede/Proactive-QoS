@@ -20,6 +20,16 @@ public class Monitor implements Runnable {
 			System.out.println(node.getType().getName() + " requesting QoS values.");
 			int[] currentQoS = controller.requestData(node.getType());
 			
+			if (currentQoS == null){
+				
+			} else {
+			System.out.println("Status for " + node.getType().getName() + ":\n" +
+					"Packet Loss: " + currentQoS[0] + "%\n" +
+					"Jitter: " + currentQoS[1] + "ms\n" +
+					"Latency: " + currentQoS[2] + "ms\n" +
+					"Throughput: " + currentQoS[3] + " " + Link.BAND_TYPE.valueOf(currentQoS[4]).getName() + "\n");
+			}
+			
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
