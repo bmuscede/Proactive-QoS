@@ -5,35 +5,29 @@ public class Monitor implements Runnable {
 	//Variables for the monitor.
 	private Node node;
 	private int[] benchmarks;
-	private NetworkController controller;
+	public volatile static NetworkController controller;
 	
-	public Monitor(Node dslNode, int[] benchmarks, NetworkController data){
+	public Monitor(Node dslNode, int[] benchmarks){
 		node = dslNode;
 		this.benchmarks = benchmarks;
-		controller = data;
 	}
 	
 	public void run() {
 		//Executes when the program runs.
 		while(true){
-			//We request data from the controller.
-			System.out.println(node.getType().getName() + " requesting QoS values.");
-			int[] currentQoS = controller.requestData(node.getType());
-			
-			if (currentQoS == null){
-				
-			} else {
-			System.out.println("Status for " + node.getType().getName() + ":\n" +
-					"Packet Loss: " + currentQoS[0] + "%\n" +
-					"Jitter: " + currentQoS[1] + "ms\n" +
-					"Latency: " + currentQoS[2] + "ms\n" +
-					"Throughput: " + currentQoS[3] + " " + Link.BAND_TYPE.valueOf(currentQoS[4]).getName() + "\n");
-			}
+			//Performs monitor and then detection mode.
+			boolean success = monitorMode();
+			if (!success) detectionMode();
+			else System.out.println("Metrics have passed.");
 			
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+				
+				//Aborts the thread.
+				System.out.println("\nAborting " + node.getType().getName() + ".");
+				break;
 			}
 		}
 	}
@@ -44,5 +38,55 @@ public class Monitor implements Runnable {
 			thread = new Thread(this);
 			thread.start();
 		}
+	}
+	
+	private boolean monitorMode(){
+		//We request data from the controller.
+		int[] currentQoS = null;
+				
+		try {
+			synchronized(controller) {
+				currentQoS = controller.requestData(node.getType());
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return true;
+		}			
+		
+		//We need to check whether the metrics meet standards.
+		return checkMetrics(currentQoS);
+	}
+	
+	private boolean checkMetrics(int[] currentQoS) {
+		if (controller.alreadyError()) return false;
+		else return true;
+		
+		//Loops through all the QoS values to check.
+		/*for (int i = 0; i < currentQoS.length - 1; i++){
+			if (i < 3){
+				if (currentQoS[i] >= benchmarks[i]){
+					return false;
+				}
+			} else {
+				if ((currentQoS[i] < benchmarks[i] &&
+				    currentQoS[i + 1] <= benchmarks[i + 1]) ||
+				    currentQoS[i + 1] < benchmarks[i + 1]){
+					return false;
+				}
+			}
+		}
+		return true;*/
+	}
+
+	private void detectionMode(){
+		System.out.println("Detecting Error.");
+		try {
+			Thread.sleep(8000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		controller.notifyDetected(null, null);
+		notifyAll();
 	}
 }
