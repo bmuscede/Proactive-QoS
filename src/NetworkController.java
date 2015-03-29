@@ -129,11 +129,12 @@ public class NetworkController {
 		return null;
 	}
 	
-	public synchronized void notifyDetected(Node indicatedNode, Link indicatedLink){
+	public synchronized boolean notifyDetected(Node indicatedNode, Link indicatedLink){
 		error = false;
 		
 		//Finally, wakes up the other threads.
 		notifyAll();
+		return true;
 	}
 	
 	private void buildErrorGraph(int[] valuesQoS) {

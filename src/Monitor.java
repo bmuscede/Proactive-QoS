@@ -71,8 +71,6 @@ public class Monitor implements Runnable {
 	}
 	
 	private boolean checkMetrics(int[] currentQoS) {
-		return !(controller.alreadyError());
-		/*
 		//Loops through all the QoS values to check.
 		for (int i = 0; i < currentQoS.length - 1; i++){
 			if (i < 3){
@@ -81,13 +79,13 @@ public class Monitor implements Runnable {
 				}
 			} else {
 				if ((currentQoS[i] < benchmarks[i] &&
-				    currentQoS[i + 1] <= benchmarks[i + 1]) ||
+				    currentQoS[i + 1] >= benchmarks[i + 1]) ||
 				    currentQoS[i + 1] < benchmarks[i + 1]){
 					return false;
 				}
 			}
 		}
-		return true;*/
+		return true;
 	}
 
 	private void detectionMode(){
@@ -101,11 +99,20 @@ public class Monitor implements Runnable {
 		//Once we do this, we run loop through the path.
 		Node problemNode = null;
 		Link problemLink = null;
-		for (int i = 0; i < path.size(); i++){
+		for (int i = 1; i < path.size(); i++){
+			//Gets the current node/link being examined.
+			Node currentNode = path.get(i);
+			Link currentLink = graph.findEdge(path.get(i - 1), path.get(i));
+			
+			//Checks the benchmarks at that node.
 			
 		}
 		
-		controller.notifyDetected(problemNode, problemLink);
+		//Notifies the controller of its answer.
+		boolean correct = controller.notifyDetected(problemNode, problemLink);
+		if (!correct){
+			System.out.println("Incorrect.");
+		}
 	}
 
 	private List<Node> dikjstraAlgorithm(Graph<Node, Link> graph, Node source, Node destination) {
