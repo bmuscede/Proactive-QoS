@@ -44,6 +44,13 @@ public class Link {
 		bandwidthType = type;
 	}
 	
+	public int getBandwidthValue(){
+		return bandwidthValue;
+	}
+	public BAND_TYPE getBandwidthType(){
+		return bandwidthType;
+	}
+	
 	public String toString(){
 		return bandwidthValue + " " + bandwidthType.getName();
 	}

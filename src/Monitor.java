@@ -1,3 +1,16 @@
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Vector;
+
+import edu.uci.ics.jung.graph.Graph;
+
 
 public class Monitor implements Runnable {
 	private Thread thread;
@@ -57,7 +70,9 @@ public class Monitor implements Runnable {
 		return checkMetrics(currentQoS);
 	}
 	
-	private boolean checkMetrics(int[] currentQoS) {	
+	private boolean checkMetrics(int[] currentQoS) {
+		return !(controller.alreadyError());
+		/*
 		//Loops through all the QoS values to check.
 		for (int i = 0; i < currentQoS.length - 1; i++){
 			if (i < 3){
@@ -72,17 +87,74 @@ public class Monitor implements Runnable {
 				}
 			}
 		}
-		return true;
+		return true;*/
 	}
 
 	private void detectionMode(){
-		System.out.println("Detecting Error.");
-		try {
-			Thread.sleep(8000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		//First, we get the graph for the entire topology.
+		Graph<Node, Link> graph = controller.requestErrorGraph();
+		Node destination = controller.requestDestinationNode();
+		
+		//Next, we generate the path from source to destination.
+		List<Node> path = dikjstraAlgorithm(graph, node, destination);
+		
+		//Once we do this, we run loop through the path.
+		Node problemNode = null;
+		Link problemLink = null;
+		for (int i = 0; i < path.size(); i++){
+			
 		}
 		
-		controller.notifyDetected(null, null);
+		controller.notifyDetected(problemNode, problemLink);
+	}
+
+	private List<Node> dikjstraAlgorithm(Graph<Node, Link> graph, Node source, Node destination) {
+		//First, we fill in the nodes for the graph.
+		graph = getShortestPaths(graph, source);
+		
+		//Creates a node path object.
+		List<Node> path = new ArrayList<Node>();
+		
+		//Iterates through the graph.
+        for (Node currentNode = destination; currentNode != null;){
+        	path.add(currentNode);
+        	currentNode = currentNode.previous;
+        }
+
+        //Reverse the path.
+        Collections.reverse(path);
+        return path;
+	}
+	
+	private Graph<Node, Link> getShortestPaths(Graph<Node, Link> graph, Node source){
+		//We set the smallest difference and add it to the priority queue.
+		source.minDistance = 0;
+		PriorityQueue<Node> nodeQueue = new PriorityQueue<Node>();
+      	nodeQueue.add(source);
+      	
+      	//Now, we loop until we have no more nodes to give.
+      	while (nodeQueue.isEmpty() == false){
+      		//Get the smallest node.
+      		Node small = nodeQueue.poll();
+      		
+      		//Populates the smallest values for each.
+      		Collection<Node> adj = graph.getNeighbors(small);
+      		for(Iterator<Node> it = adj.iterator(); it.hasNext();){
+      			Node current = it.next();
+      			Link link = graph.findEdge(small, current);
+      			
+      			double dist = small.minDistance + (link.getBandwidthValue() * link.getBandwidthType().getBitNum());
+      			
+      			//Re-adds the node if smaller.
+      			if (dist < current.minDistance){
+      				nodeQueue.remove(current);
+      				current.previous = small;
+      				current.minDistance = dist;
+      				nodeQueue.add(current);
+      			}
+      		}
+      	}
+      	
+      	return graph;
 	}
 }

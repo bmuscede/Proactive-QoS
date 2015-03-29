@@ -110,12 +110,21 @@ public class NetworkController {
 		//First, check for error.
 		if (error == false) return null;
 		
-		return null;
+		return graph;
 	}
 	
 	public Node requestDestinationNode(){
 		//First, check for error.
 		if (error == false) return null;
+		
+		Iterator<Node> vertices = graph.getVertices().iterator();
+		while (vertices.hasNext()){
+			//Gets the next node.
+			Node current = vertices.next();
+			
+			//Checks the node type.
+			if (current.getType().equals(Node.NodeType.GATEWAY)) return current;
+		}
 		
 		return null;
 	}
