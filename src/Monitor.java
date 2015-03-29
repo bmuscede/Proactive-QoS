@@ -57,12 +57,9 @@ public class Monitor implements Runnable {
 		return checkMetrics(currentQoS);
 	}
 	
-	private boolean checkMetrics(int[] currentQoS) {
-		if (controller.alreadyError()) return false;
-		else return true;
-		
+	private boolean checkMetrics(int[] currentQoS) {	
 		//Loops through all the QoS values to check.
-		/*for (int i = 0; i < currentQoS.length - 1; i++){
+		for (int i = 0; i < currentQoS.length - 1; i++){
 			if (i < 3){
 				if (currentQoS[i] >= benchmarks[i]){
 					return false;
@@ -75,7 +72,7 @@ public class Monitor implements Runnable {
 				}
 			}
 		}
-		return true;*/
+		return true;
 	}
 
 	private void detectionMode(){
@@ -87,6 +84,5 @@ public class Monitor implements Runnable {
 		}
 		
 		controller.notifyDetected(null, null);
-		notifyAll();
 	}
 }
