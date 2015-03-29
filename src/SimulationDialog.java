@@ -287,17 +287,17 @@ public class SimulationDialog extends JDialog {
 		
 		switch ((String) cmbTypeDSL.getSelectedItem()){
 			case "Kbps":
-				parameters[4] = Link.BAND_TYPE.KBPS.getBitNum();
+				parameters[4] = Link.BAND_TYPE.KBPS.getInternal();
 				break;
 			case "Tbps":
-				parameters[4] = Link.BAND_TYPE.TBPS.getBitNum();
+				parameters[4] = Link.BAND_TYPE.TBPS.getInternal();
 				break;
 			case "Gbps":
-				parameters[4] = Link.BAND_TYPE.GPBS.getBitNum();
+				parameters[4] = Link.BAND_TYPE.GPBS.getInternal();
 				break;
 			case "Mbps":
 			default:
-				parameters[4] = Link.BAND_TYPE.MBPS.getBitNum();
+				parameters[4] = Link.BAND_TYPE.MBPS.getInternal();
 		}
 		
 		return parameters;

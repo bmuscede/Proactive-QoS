@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Vector;
 
+import cern.colt.Arrays;
+
 import edu.uci.ics.jung.graph.Graph;
 
 
@@ -71,6 +73,8 @@ public class Monitor implements Runnable {
 	}
 	
 	private boolean checkMetrics(int[] currentQoS) {
+		System.out.println(Arrays.toString(currentQoS));
+		
 		//Loops through all the QoS values to check.
 		for (int i = 0; i < currentQoS.length - 1; i++){
 			if (i < 3){
@@ -79,12 +83,13 @@ public class Monitor implements Runnable {
 				}
 			} else {
 				if ((currentQoS[i] < benchmarks[i] &&
-				    currentQoS[i + 1] >= benchmarks[i + 1]) ||
+				    currentQoS[i + 1] <= benchmarks[i + 1]) ||
 				    currentQoS[i + 1] < benchmarks[i + 1]){
 					return false;
 				}
 			}
 		}
+		
 		return true;
 	}
 
