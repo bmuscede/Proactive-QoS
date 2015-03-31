@@ -85,15 +85,15 @@ public class NetworkController {
 	
 	public synchronized int[] requestData(Node.NodeType type) throws InterruptedException {
 		if (alreadyError()){
-			System.out.println("Waiting for the error to be resolved.");
+			System.out.println(type.getName() + " is waiting for the other node to resolve its error.");
 			wait();
-			System.out.println("Woken up!");
+			System.out.println(type.getName() + " is ready to get QoS Metrics again.");
 		}
 		
 		//Determines whether there is an error.
 		error = randomizeError();
 		int[] valuesQoS;
-		System.out.println(error);
+
 		if (error){
 			//Generates data with random error.
 			valuesQoS = generateRandomError(type);
@@ -159,7 +159,6 @@ public class NetworkController {
 		 */
 		
 		int violations = generator.nextInt(11);
-		System.out.println(violations);
 		
 		/* CASE 1: Only one metric will violate benchmarks */
 		if(violations <= 5){
@@ -252,9 +251,16 @@ public class NetworkController {
 	 				? dslBenchmarks[i + 1] : voipBenchmarks[i + 1];
 		} else if (i == 4) {
 			//Throughput Indicator.
-			qosValues[i] = generator.nextInt(currentBenchmark);
+			if (currentBenchmark == 0) {
+				qosValues[i] = currentBenchmark; 
+				qosValues[i - 1] = (type.getNumVal() == Node.NodeType.DSL_END.getNumVal())
+		 				? generator.nextInt(dslBenchmarks[i - 1]) : generator.nextInt(voipBenchmarks[i - 1]);
+			} else { 
+				qosValues[i] = generator.nextInt(currentBenchmark);
+			}
 		} else {
 			//Everything else.
+			System.out.println(currentBenchmark);
 			qosValues[i] = currentBenchmark + generator.nextInt(currentBenchmark/10);
 		}	
 		return qosValues;

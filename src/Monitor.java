@@ -31,9 +31,15 @@ public class Monitor implements Runnable {
 		//Executes when the program runs.
 		while(true){
 			//Performs monitor and then detection mode.
+			System.out.println(node.getType().getName() + " is entering monitor mode.");
 			boolean success = monitorMode();
-			if (!success) detectionMode();
-			else System.out.println("Metrics have passed.");
+			
+			if (!success){
+				System.out.println(node.getType().getName() + " is entering detection mode.");
+				detectionMode();
+			} else {
+				System.out.println(node.getType().getName() + " found no QoS Metric errors.");
+			}
 			
 			try {
 				Thread.sleep(1000);
@@ -69,12 +75,15 @@ public class Monitor implements Runnable {
 		}			
 		
 		//We need to check whether the metrics meet standards.
+		System.out.println(node.getType().getName() + " Benchmarks:\n" +
+						   "Packet Loss: " + currentQoS[0] + "%\n" +
+						   "Jitter: " + currentQoS[1] + "ms\n" +
+						   "Latency: " + currentQoS[2] + "ms\n" +
+						   "Throughput: " + currentQoS[3] + Link.BAND_TYPE.valueOf(currentQoS[4]) + "\n");
 		return checkMetrics(currentQoS);
 	}
 	
 	private boolean checkMetrics(int[] currentQoS) {
-		System.out.println(Arrays.toString(currentQoS));
-		
 		//Loops through all the QoS values to check.
 		for (int i = 0; i < currentQoS.length - 1; i++){
 			if (i < 3){
@@ -99,25 +108,36 @@ public class Monitor implements Runnable {
 		Node destination = controller.requestDestinationNode();
 		
 		//Next, we generate the path from source to destination.
-		List<Node> path = dikjstraAlgorithm(graph, node, destination);
+		//List<Node> path = dikjstraAlgorithm(graph, node, destination);
 		
 		//Once we do this, we run loop through the path.
 		Node problemNode = null;
 		Link problemLink = null;
-		for (int i = 1; i < path.size(); i++){
+		/*for (int i = 1; i < path.size(); i++){
 			//Gets the current node/link being examined.
 			Node currentNode = path.get(i);
 			Link currentLink = graph.findEdge(path.get(i - 1), path.get(i));
 			
 			//Checks the benchmarks at that node.
 			
-		}
+		}*/
 		
 		//Notifies the controller of its answer.
 		boolean correct = controller.notifyDetected(problemNode, problemLink);
 		if (!correct){
-			System.out.println("Incorrect.");
+			//Will be handled if incorrect.
 		}
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			
+			//Aborts the thread.
+			System.out.println("\nAborting " + node.getType().getName() + ".");
+		}
+		
+		System.out.println(node.getType().getName() + " found the error.");
 	}
 
 	private List<Node> dikjstraAlgorithm(Graph<Node, Link> graph, Node source, Node destination) {
