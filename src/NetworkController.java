@@ -19,8 +19,14 @@ public class NetworkController {
 	private Vector<Monitor> dslNodes;
 	private Vector<Monitor> voipNodes;
 	
-	public NetworkController(Graph<Node, Link> graph, int[] dslBenchmarks,
+	//Network Window
+	public NetworkWindow graphWindow;
+	
+	public NetworkController(NetworkWindow window, Graph<Node, Link> graph, int[] dslBenchmarks,
 			int[] voipBenchmarks, int failureRate) {
+		//Gets the graph window.
+		graphWindow = window;
+		
 		//Sets up error boolean.
 		error = false;
 		

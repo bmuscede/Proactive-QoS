@@ -35,14 +35,16 @@ public class Monitor implements Runnable {
 			boolean success = monitorMode();
 			
 			if (!success){
+				controller.graphWindow.setNodeIcon(node, 2);
 				System.out.println(node.getType().getName() + " is entering detection mode.");
 				detectionMode();
 			} else {
+				controller.graphWindow.setNodeIcon(node, 1);
 				System.out.println(node.getType().getName() + " found no QoS Metric errors.");
 			}
 			
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				

@@ -331,7 +331,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			int failureRate = parameters.getFailure();
 			
 			//With these values, we start the simulation.
-			control = new NetworkController(graph, dslBenchmarks, voipBenchmarks, failureRate);
+			control = new NetworkController(this, graph, dslBenchmarks, voipBenchmarks, failureRate);
 			control.start();
 		}
 	}
@@ -587,5 +587,30 @@ public class NetworkWindow extends JFrame implements ActionListener {
 	}
 	public void setEdgeCount(int edgeCount) {
 		this.edgeCount = edgeCount;
+	}
+	
+	public void setNodeIcon(Node selectedNode, int status){
+		//Gets the image.
+		ImageIcon image = null;
+		if (status == 0){
+			image = new ImageIcon(System.getProperty("user.dir") + "/" + IMAGE_LOC + "/" + iconFiles[selectedNode.getType().getNumVal()]);
+		} else if (status == 1){
+			image = new ImageIcon(System.getProperty("user.dir") + "/" + IMAGE_LOC + "/" + iconYes[selectedNode.getType().getNumVal()]);
+		} else if (status == 2){
+			image = new ImageIcon(System.getProperty("user.dir") + "/" + IMAGE_LOC + "/" + iconError[selectedNode.getType().getNumVal()]);
+		}
+
+    	//Modify the image.
+		Image img = image.getImage();
+		img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
+		image = new ImageIcon(img);
+		
+		//Sets it in the graph.
+		Icon icon = new LayeredIcon(image.getImage());
+		iconMap.remove(selectedNode);
+		iconMap.put(selectedNode, icon);
+		
+		//Repaints the panel.
+		pnlGraph.repaint();
 	}
 }
