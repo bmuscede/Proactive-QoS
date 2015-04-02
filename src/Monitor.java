@@ -37,7 +37,7 @@ public class Monitor implements Runnable {
 			if (!success){
 				controller.graphWindow.setNodeIcon(node, 2);
 				System.out.println(node.getType().getName() + " is entering detection mode.");
-				detectionMode();
+				detectionMode(node);
 			} else {
 				controller.graphWindow.setNodeIcon(node, 1);
 				System.out.println(node.getType().getName() + " found no QoS Metric errors.");
@@ -69,7 +69,7 @@ public class Monitor implements Runnable {
 				
 		try {
 			synchronized(controller) {
-				currentQoS = controller.requestData(node.getType());
+				currentQoS = controller.requestData(node);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -104,7 +104,7 @@ public class Monitor implements Runnable {
 		return true;
 	}
 
-	private void detectionMode(){
+	private void detectionMode(Node userWithProblem){
 		//First, we get the graph for the entire topology.
 		Graph<Node, Link> graph = controller.requestErrorGraph();
 		Node destination = controller.requestDestinationNode();
