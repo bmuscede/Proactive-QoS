@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Random;
 import java.util.Vector;
 
 import cern.colt.Arrays;
@@ -105,24 +106,48 @@ public class Monitor implements Runnable {
 	}
 
 	private void detectionMode(Node userWithProblem){
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			
+			//Aborts the thread.
+			System.out.println("\nAborting " + node.getType().getName() + ".");
+		}
+		
 		//First, we get the graph for the entire topology.
 		Graph<Node, Link> graph = controller.requestErrorGraph();
 		Node destination = controller.requestDestinationNode();
 		
 		//Next, we generate the path from source to destination.
-		//List<Node> path = dikjstraAlgorithm(graph, node, destination);
+		List<Node> path = dikjstraAlgorithm(graph, node, destination);
 		
 		//Once we do this, we run loop through the path.
 		Node problemNode = null;
 		Link problemLink = null;
-		/*for (int i = 1; i < path.size(); i++){
+		for (int i = 0; i < path.size(); i++){
 			//Gets the current node/link being examined.
 			Node currentNode = path.get(i);
-			Link currentLink = graph.findEdge(path.get(i - 1), path.get(i));
+			//Link currentLink = graph.findEdge(path.get(i - 1), path.get(i));
 			
-			//Checks the benchmarks at that node.
+			//Lights up current node. (TEMP)
+			if (controller.errorNode == currentNode){
+				controller.graphWindow.setNodeIcon(currentNode, 2);
+				problemNode = currentNode;
+				break;
+			} else {
+				controller.graphWindow.setNodeIcon(currentNode, 1);
+			}
 			
-		}*/
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				
+				//Aborts the thread.
+				System.out.println("\nAborting " + node.getType().getName() + ".");
+			}
+		}
 		
 		//Notifies the controller of its answer.
 		boolean correct = controller.notifyDetected(problemNode, problemLink);
@@ -140,6 +165,20 @@ public class Monitor implements Runnable {
 		}
 		
 		System.out.println(node.getType().getName() + " found the error.");
+		resetColours(graph);
+	}
+
+	private void resetColours(Graph<Node, Link> graph) {
+		Iterator<Node> vertices = graph.getVertices().iterator();
+		while (vertices.hasNext()){
+			Node current = vertices.next();
+			
+			//Check for DSL END or VOIP End
+			if (current.getType().getNumVal() != Node.NodeType.DSL_END.getNumVal() &&
+					current.getType().getNumVal() != Node.NodeType.VOIP_END.getNumVal()){
+				controller.graphWindow.setNodeIcon(current, 0);
+			}
+		}
 	}
 
 	private List<Node> dikjstraAlgorithm(Graph<Node, Link> graph, Node source, Node destination) {

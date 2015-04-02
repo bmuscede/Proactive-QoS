@@ -19,7 +19,7 @@ public class NetworkController {
 	
 	//Failure Rate
 	private int failureRate;
-	private Node errorNode;
+	public Node errorNode;
 	private Node destNode;
 	
 	//Graph
@@ -182,15 +182,18 @@ public class NetworkController {
 	 **********************************/
 	public synchronized boolean notifyDetected(Node indicatedNode, Link indicatedLink){
 		//Check the indicated node with the error.
-		if (indicatedNode == errorNode)
+		boolean properError = false;
+		if (indicatedNode == errorNode){
 			System.out.println("Error was found properly.");
-		else 
+			properError = true;
+		} else { 
 			System.out.println("Error was not found properly");
+		}
 		error = false;
 		
 		//Finally, wakes up the other threads.
 		notifyAll();
-		return true;
+		return properError;
 	}
 	
 	
@@ -243,17 +246,20 @@ public class NetworkController {
 		int findBad = generator.nextInt(path.size());
 		//GENERATE MERTICS FOR NODES IN PATH
 		//fill in qOs metrics 
-		Iterator<Node> findBadNode = graph.getVertices().iterator();
-	    Node problemNode = null; 
-		while (findBadNode.hasNext()){
+		Iterator<Node> findBadNode = path.iterator();
+	    Node problemNode = null;
+	    i = 0;
+		while (i <= findBad){
 		  //Gets the next node.
-		  problemNode = vertices.next();
-		  if(problemNode.getType().getNumVal() == findBad){
+		  problemNode = findBadNode.next();
+
+		  if(i == findBad){
 			  errorNode = problemNode;
 			  break;
 		  }
+		  
+		  i++;
 		 }
-		
 	}
 
 	/**********************************
