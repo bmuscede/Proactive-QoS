@@ -1,6 +1,12 @@
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Vector;
+
 import edu.uci.ics.jung.graph.Graph;
 
 public class NetworkController {
@@ -19,6 +25,11 @@ public class NetworkController {
 	private Vector<Monitor> dslNodes;
 	private Vector<Monitor> voipNodes;
 	
+	/**********************************
+	 * 
+	 * NEWTORKCONTROLLER constructor
+	 *
+	 **********************************/
 	public NetworkController(Graph<Node, Link> graph, int[] dslBenchmarks,
 			int[] voipBenchmarks, int failureRate) {
 		//Sets up error boolean.
@@ -36,6 +47,12 @@ public class NetworkController {
 		setupNodes();
 	}
 	
+	
+	/**********************************
+	 * 
+	 * setupNodes
+	 *
+	 **********************************/
 	private void setupNodes(){
 		Monitor.controller = this;
 		
@@ -58,6 +75,12 @@ public class NetworkController {
 		}
 	}
 	
+	
+	/**********************************
+	 * 
+	 * start
+	 *
+	 **********************************/
 	public void start(){
 		//Starts each of the monitor threads.
 		for (int i = 0; i < dslNodes.size(); i++){
@@ -68,6 +91,12 @@ public class NetworkController {
 		}
 	}
 
+	
+	/**********************************
+	 * 
+	 * randomizeError
+	 *
+	 **********************************/
 	private boolean randomizeError(){
 		//Create new random generator.
 		Random randomGenerator = new Random();
@@ -83,11 +112,17 @@ public class NetworkController {
 		return true;
 	}
 	
-	public synchronized int[] requestData(Node.NodeType type) throws InterruptedException {
+	
+	/**********************************
+	 * 
+	 * requestData
+	 *
+	 **********************************/
+	public synchronized int[] requestData(Node userNode) throws InterruptedException {
 		if (alreadyError()){
-			System.out.println(type.getName() + " is waiting for the other node to resolve its error.");
+			System.out.println(userNode.getType().getName() + " is waiting for the other node to resolve its error.");
 			wait();
-			System.out.println(type.getName() + " is ready to get QoS Metrics again.");
+			System.out.println(userNode.getType().getName()  + " is ready to get QoS Metrics again.");
 		}
 		
 		//Determines whether there is an error.
@@ -96,16 +131,22 @@ public class NetworkController {
 
 		if (error){
 			//Generates data with random error.
-			valuesQoS = generateRandomError(type);
-			buildErrorGraph(valuesQoS);
+			valuesQoS = generateRandomError(userNode.getType());
+            buildErrorGraph(valuesQoS, userNode);
 		} else {
 			//Generates normal QoS.
-			valuesQoS = generateRandomNormal(type);
+			valuesQoS = generateRandomNormal(userNode.getType());
 		}
 		
 		return valuesQoS;
 	}
 
+	
+	/**********************************
+	 * 
+	 * requestErrorGraph
+	 *
+	 **********************************/
 	public Graph<Node, Link> requestErrorGraph(){
 		//First, check for error.
 		if (error == false) return null;
@@ -113,22 +154,25 @@ public class NetworkController {
 		return graph;
 	}
 	
+	
+	/**********************************
+	 * 
+	 * requestDestinationNode
+	 *
+	 **********************************/
 	public Node requestDestinationNode(){
 		//First, check for error.
 		if (error == false) return null;
 		
-		Iterator<Node> vertices = graph.getVertices().iterator();
-		while (vertices.hasNext()){
-			//Gets the next node.
-			Node current = vertices.next();
-			
-			//Checks the node type.
-			if (current.getType().equals(Node.NodeType.GATEWAY)) return current;
-		}
 		
 		return null;
 	}
 	
+	/**********************************
+	 * 
+	 * notifyDetected
+	 *
+	 **********************************/
 	public synchronized boolean notifyDetected(Node indicatedNode, Link indicatedLink){
 		error = false;
 		
@@ -137,10 +181,66 @@ public class NetworkController {
 		return true;
 	}
 	
-	private void buildErrorGraph(int[] valuesQoS) {
-
+	
+	/**********************************
+	 * 
+	 * buildErrorGraph
+	 *
+	 **********************************/
+	private void buildErrorGraph(int[] valuesQoS, Node userNode) {
+      //pick destination node 
+		Iterator<Node> vertices = graph.getVertices().iterator();
+		Node current = null;
+		while (vertices.hasNext()){
+			//Gets the next node.
+			current = vertices.next();
+			
+			//Checks the node type.
+			if (current.getType().equals(Node.NodeType.GATEWAY)) break; //return current;
+		}
+		//use djikstra's again
+		List<Node> path = dikjstraAlgorithm(graph, userNode, current);
+		
+		boolean badMetrics[] = new boolean[4];
+		
+		int currentBenchmark[] = (userNode.getType().getNumVal() == Node.NodeType.DSL_END.getNumVal())
+ 				? dslBenchmarks : voipBenchmarks;
+ 				
+		/***-------------Check which metric was a problem ----------------****/
+		//if packet loss violated
+		badMetrics[0] = (valuesQoS[0] >= currentBenchmark[0]) ? true : false;
+		// if jitter violated
+		badMetrics[1] = (valuesQoS[1] >= currentBenchmark[1]) ? true : false;
+		//if latency violated
+		badMetrics[2] = (valuesQoS[2] >= currentBenchmark[2]) ? true : false;
+		//if throughput violated
+		badMetrics[3] = (((valuesQoS[3] < currentBenchmark[3] &&
+			    valuesQoS[4] <= currentBenchmark[4]) ||
+			    valuesQoS[4] < currentBenchmark[4])) ? true : false;
+		
+		
+		//pick a number between 0 and size of path for error source
+		Random generator = new Random();
+		int findBad = generator.nextInt(path.size()+1);
+		//GENERATE MERTICS FOR NODES IN PATH
+		//fill in qOs metrics 
+		Iterator<Node> findBadNode = graph.getVertices().iterator();
+	    Node problemNode = null; 
+		while (findBadNode.hasNext()){
+		  //Gets the next node.
+		  problemNode = vertices.next();
+		  if(problemNode.getType().getNumVal() == findBad){
+		    break;
+		  }
+		 }
+		
 	}
 
+	/**********************************
+	 * 
+	 * generateRandomError
+	 *
+	 **********************************/
 	private int[] generateRandomError(Node.NodeType type) {
 		//Random generator.
 		Random generator = new Random();
@@ -234,6 +334,12 @@ public class NetworkController {
 		return qosValues;
 	}
 	
+	
+	/**********************************
+	 * 
+	 * changeMetric
+	 *
+	 **********************************/
 	private int[] changeMetric(Node.NodeType type, int[] qosValues, int i){
 		
 		//Random generator.
@@ -266,6 +372,12 @@ public class NetworkController {
 		return qosValues;
 	}
 	
+	
+	/**********************************
+	 * 
+	 * generateRandomNormal
+	 *
+	 **********************************/
 	private int[] generateRandomNormal(Node.NodeType type) {
 		//Random generator.
 		Random generator = new Random();
@@ -294,7 +406,73 @@ public class NetworkController {
 		return qosValues;
 	}
 
+	/**********************************
+	 * 
+	 * alreadyError
+	 *
+	 **********************************/
 	public boolean alreadyError() {
 		return error;
+	}
+	
+
+	/**********************************
+	 * 
+	 * dikjstraAlgotirhm
+	 *
+	 **********************************/
+	private List<Node> dikjstraAlgorithm(Graph<Node, Link> graph, Node source, Node destination) {
+		//First, we fill in the nodes for the graph.
+		graph = getShortestPaths(graph, source);
+		
+		//Creates a node path object.
+		List<Node> path = new ArrayList<Node>();
+		
+		//Iterates through the graph.
+        for (Node currentNode = destination; currentNode != null;){
+        	path.add(currentNode);
+        	currentNode = currentNode.previous;
+        }
+
+        //Reverse the path.
+        Collections.reverse(path);
+        return path;
+	}
+	
+	/**********************************
+	 * 
+	 * getShortestPaths
+	 *
+	 **********************************/
+	private Graph<Node, Link> getShortestPaths(Graph<Node, Link> graph, Node source){
+		//We set the smallest difference and add it to the priority queue.
+		source.minDistance = 0;
+		PriorityQueue<Node> nodeQueue = new PriorityQueue<Node>();
+      	nodeQueue.add(source);
+      	
+      	//Now, we loop until we have no more nodes to give.
+      	while (nodeQueue.isEmpty() == false){
+      		//Get the smallest node.
+      		Node small = nodeQueue.poll();
+      		
+      		//Populates the smallest values for each.
+      		Collection<Node> adj = graph.getNeighbors(small);
+      		for(Iterator<Node> it = adj.iterator(); it.hasNext();){
+      			Node current = it.next();
+      			Link link = graph.findEdge(small, current);
+      			
+      			double dist = small.minDistance + (link.getBandwidthValue() * link.getBandwidthType().getBitNum());
+      			
+      			//Re-adds the node if smaller.
+      			if (dist < current.minDistance){
+      				nodeQueue.remove(current);
+      				current.previous = small;
+      				current.minDistance = dist;
+      				nodeQueue.add(current);
+      			}
+      		}
+      	}
+      	
+      	return graph;
 	}
 }
