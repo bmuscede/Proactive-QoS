@@ -19,6 +19,8 @@ public class NetworkController {
 	
 	//Failure Rate
 	private int failureRate;
+	private Node errorNode;
+	private Node destNode;
 	
 	//Graph
 	private Graph<Node, Link> graph;
@@ -170,8 +172,7 @@ public class NetworkController {
 		//First, check for error.
 		if (error == false) return null;
 		
-		
-		return null;
+		return destNode;
 	}
 	
 	/**********************************
@@ -180,6 +181,11 @@ public class NetworkController {
 	 *
 	 **********************************/
 	public synchronized boolean notifyDetected(Node indicatedNode, Link indicatedLink){
+		//Check the indicated node with the error.
+		if (indicatedNode == errorNode)
+			System.out.println("Error was found properly.");
+		else 
+			System.out.println("Error was not found properly");
 		error = false;
 		
 		//Finally, wakes up the other threads.
@@ -196,16 +202,24 @@ public class NetworkController {
 	private void buildErrorGraph(int[] valuesQoS, Node userNode) {
       //pick destination node 
 		Iterator<Node> vertices = graph.getVertices().iterator();
-		Node current = null;
-		while (vertices.hasNext()){
+		Node dest = null;
+		
+		//Get the end node.
+		Random generator = new Random();
+		int nodeEnd = generator.nextInt(graph.getVertexCount());
+		int i = 0;
+		while (i <= nodeEnd && vertices.hasNext()){
 			//Gets the next node.
-			current = vertices.next();
+			dest = vertices.next();
 			
 			//Checks the node type.
-			if (current.getType().equals(Node.NodeType.GATEWAY)) break; //return current;
+			if (i == nodeEnd) break;
+			i++;
 		}
+		destNode = dest;
+		
 		//use djikstra's again
-		List<Node> path = dikjstraAlgorithm(graph, userNode, current);
+		List<Node> path = dikjstraAlgorithm(graph, userNode, dest);
 		
 		boolean badMetrics[] = new boolean[4];
 		
@@ -226,8 +240,7 @@ public class NetworkController {
 		
 		
 		//pick a number between 0 and size of path for error source
-		Random generator = new Random();
-		int findBad = generator.nextInt(path.size()+1);
+		int findBad = generator.nextInt(path.size());
 		//GENERATE MERTICS FOR NODES IN PATH
 		//fill in qOs metrics 
 		Iterator<Node> findBadNode = graph.getVertices().iterator();
@@ -236,7 +249,8 @@ public class NetworkController {
 		  //Gets the next node.
 		  problemNode = vertices.next();
 		  if(problemNode.getType().getNumVal() == findBad){
-		    break;
+			  errorNode = problemNode;
+			  break;
 		  }
 		 }
 		
