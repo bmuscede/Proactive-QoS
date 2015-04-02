@@ -87,6 +87,8 @@ public class NetworkWindow extends JFrame implements ActionListener {
 	protected ImageIcon[] preloadIcons;
 	private String[] iconFiles = { "dsl_end.png", "voip_end.png", "edge.png", "core.png", "gateway.png", "transform.png",
 								   "move.png", "simulate.png"};
+	private String[] iconError = { "dsl_end_error.png", "voip_end_error.png", "edge_error.png", "core_error.png", "gateway_error.png"};
+	private String[] iconYes = { "dsl_end_yes.png", "voip_end_yes.png", "edge_yes.png", "core_yes.png", "gateway_yes.png"};
 	private String[] buttonLabels = {"Create DSL Customer Node", 
 			 						 "Create VoIP Customer Node", 
 			 					     "Create Edge Router", 
