@@ -33,6 +33,7 @@ public class Monitor implements Runnable {
 		while(true){
 			//Performs monitor and then detection mode.
 			boolean success = monitorMode();
+			sleepThread();
 			
 			if (!success){
 				controller.graphWindow.setNodeIcon(node, 2);
@@ -133,6 +134,8 @@ public class Monitor implements Runnable {
 			} else {
 				controller.graphWindow.setNodeIcon(currentNode, 1);
 			}
+			
+			sleepThread();
 		}
 		
 		//Notifies the controller of its answer.
