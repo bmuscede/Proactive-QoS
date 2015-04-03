@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -232,11 +233,12 @@ public class NetworkInformationWindow extends JFrame {
 			pnlDetect[nodeVal].setVisible(true);
 			
 			//Sets focus to tab for detection mode.
-			tabbedPane.setSelectedIndex(nodeVal + 1);
+			if (tabbedPane.getSelectedIndex() != 0)
+				tabbedPane.setSelectedIndex(nodeVal + 1);
 		}
 	}
 
-	public void passMonitorMetrics(Node current, int[] currentQoS) {
+	public void passMonitorMetrics(Node current, int[] currentQoS, boolean[] improper) {
 		//Get the node value.
 		int nodeVal = position.get(current);
 		
@@ -245,5 +247,41 @@ public class NetworkInformationWindow extends JFrame {
 		lblLatency[nodeVal].setText("Latency: " + currentQoS[1] + "ms"); 
 		lblJitter[nodeVal].setText("Jitter: " + currentQoS[2] + "ms"); 
 		lblThroughput[nodeVal].setText("Throughput: " + currentQoS[3] + Link.BAND_TYPE.valueOf(currentQoS[4])); 
+		
+		//Changes their colours.
+		if (improper[0]) 
+			lblPacketLoss[nodeVal].setForeground(Color.RED);
+		else
+			lblPacketLoss[nodeVal].setForeground(Color.GREEN);
+		if (improper[1]) 
+			lblLatency[nodeVal].setForeground(Color.RED);
+		else
+			lblLatency[nodeVal].setForeground(Color.GREEN);
+		if (improper[2]) 
+			lblJitter[nodeVal].setForeground(Color.RED);
+		else
+			lblJitter[nodeVal].setForeground(Color.GREEN);
+		if (improper[3]) 
+			lblThroughput[nodeVal].setForeground(Color.RED);
+		else
+			lblThroughput[nodeVal].setForeground(Color.GREEN);
+	}
+	
+	public void setExaminingNode(Node source, Node current){
+		//Get the node value.
+		int nodeVal = position.get(source);
+		lblNode[nodeVal].setText(current.getType().toString());
+	}
+
+	public void setErrorStatus(Node current, boolean isError) {
+		//Get the node value.
+		int nodeVal = position.get(current);
+		
+		//Check for error.
+		if (isError){
+			lblIndicator[nodeVal].setText("QoS Problem Located Here");
+		} else {
+			lblIndicator[nodeVal].setText("No QoS Problem Here");
+		}
 	}
 }

@@ -30,6 +30,9 @@ public class NetworkController {
 	//Network Window
 	public NetworkWindow graphWindow;
 	
+	//Thread sleep times.
+	private static int sleepTime = 5000;
+	
 	/**********************************
 	 * 
 	 * NEWTORKCONTROLLER constructor
@@ -496,4 +499,12 @@ public class NetworkController {
       	
       	return graph;
 	}
+	
+	public static void setSleepTime(int newTime){
+		sleepTime = newTime;
+	}
+	public static int getSleepTime(){
+		return sleepTime;
+	}
+	
 }

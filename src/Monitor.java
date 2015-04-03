@@ -72,24 +72,31 @@ public class Monitor implements Runnable {
 	}
 	
 	private boolean checkMetrics(int[] currentQoS) {
+		boolean goodQoS = true;
+		boolean improper[] = new boolean[4];
+		
 		//Loops through all the QoS values to check.
 		for (int i = 0; i < currentQoS.length - 1; i++){
 			if (i < 3){
 				if (currentQoS[i] >= benchmarks[i]){
-					return false;
+					goodQoS = false;
+					improper[i] = true;
 				}
 			} else {
 				if ((currentQoS[i] < benchmarks[i] &&
 				    currentQoS[i + 1] <= benchmarks[i + 1]) ||
 				    currentQoS[i + 1] < benchmarks[i + 1]){
-					return false;
+					goodQoS = false;
+					
+					if (i == 4) improper[i - 1] = true;
+					else improper[i] = true;
 				}
 			}
 		}
 		
 		//Passes the metrics to the GUI window.
-		NetworkWindow.informationWindow.passMonitorMetrics(node, currentQoS);
-		return true;
+		NetworkWindow.informationWindow.passMonitorMetrics(node, currentQoS, improper);
+		return goodQoS;
 	}
 
 	private void detectionMode(Node userWithProblem){
@@ -111,8 +118,15 @@ public class Monitor implements Runnable {
 			Node currentNode = path.get(i);
 			//Link currentLink = graph.findEdge(path.get(i - 1), path.get(i));
 			
-			//Lights up current node. (TEMP)
-			if (controller.errorNode == currentNode){
+			//Determines whether we have an error.
+			boolean isError = determineNode(currentNode);
+			
+			//Notifies users which node we're currently examining.
+			NetworkWindow.informationWindow.setExaminingNode(node, currentNode);
+			
+			//Determines if we have an error.
+			NetworkWindow.informationWindow.setErrorStatus(node, isError);
+			if (isError){
 				controller.graphWindow.setNodeIcon(currentNode, 2);
 				problemNode = currentNode;
 				break;
@@ -127,6 +141,15 @@ public class Monitor implements Runnable {
 			//Will be handled if incorrect.
 		}
 		resetColours(graph);
+	}
+
+	private boolean determineNode(Node currentNode) {
+		//Placeholder for later.
+		if (controller.errorNode == currentNode){
+			return true;
+		}
+		
+		return false;
 	}
 
 	private void resetColours(Graph<Node, Link> graph) {
@@ -190,5 +213,13 @@ public class Monitor implements Runnable {
       	}
       	
       	return graph;
+	}
+	
+	private void sleepThread(){
+		try {
+			Thread.sleep(NetworkController.getSleepTime());
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
