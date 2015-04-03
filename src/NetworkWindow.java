@@ -20,7 +20,10 @@ import edu.uci.ics.jung.visualization.decorators.EllipseVertexShapeTransformer;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Rectangle;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -61,6 +64,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 	
 	//Main network controller.
 	public NetworkController control;
+	public NetworkInformationWindow informationWindow;
 	
 	//JMenu Items
 	JMenuItem mntmNew;
@@ -330,12 +334,22 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			int[] voipBenchmarks = parameters.getVoIP();
 			int failureRate = parameters.getFailure();
 			
+			//We start the network information pane.
+			informationWindow = new NetworkInformationWindow(graph);
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+	        Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+	        int x = (int) rect.getMaxX() - informationWindow.getWidth();
+	        int y = (int) rect.getMaxY() - informationWindow.getHeight();
+	        informationWindow.setLocation(x, y);
+	        informationWindow.setVisible(true);
+	        
 			//With these values, we start the simulation.
 			control = new NetworkController(this, graph, dslBenchmarks, voipBenchmarks, failureRate);
 			control.start();
 		}
 	}
-
+	
 	private void menuEvent(ActionEvent event) {
 		//Checks to see which object was clicked.
 		if (event.getSource().equals(mntmNew)){
