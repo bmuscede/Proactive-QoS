@@ -128,9 +128,7 @@ public class NetworkController {
 	 **********************************/
 	public synchronized int[] requestData(Node userNode) throws InterruptedException {
 		if (alreadyError()){
-			System.out.println(userNode.getType().getName() + " is waiting for the other node to resolve its error.");
 			wait();
-			System.out.println(userNode.getType().getName()  + " is ready to get QoS Metrics again.");
 		}
 		
 		//Determines whether there is an error.
@@ -184,10 +182,8 @@ public class NetworkController {
 		//Check the indicated node with the error.
 		boolean properError = false;
 		if (indicatedNode == errorNode){
-			System.out.println("Error was found properly.");
 			properError = true;
 		} else { 
-			System.out.println("Error was not found properly");
 		}
 		error = false;
 		
@@ -392,7 +388,6 @@ public class NetworkController {
 			}
 		} else {
 			//Everything else.
-			System.out.println(currentBenchmark);
 			qosValues[i] = currentBenchmark + generator.nextInt(currentBenchmark/10);
 		}	
 		return qosValues;

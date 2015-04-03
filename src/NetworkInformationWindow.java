@@ -14,9 +14,6 @@ import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
 
 import edu.uci.ics.jung.graph.Graph;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-
 
 public class NetworkInformationWindow extends JFrame {
 	private HashMap<Node, Integer> position;
@@ -42,6 +39,7 @@ public class NetworkInformationWindow extends JFrame {
 	private JLabel[] lblDThroughput;
 	private JSeparator[] sepDetect;
 	private JLabel[] lblIndicator;
+	private JTabbedPane tabbedPane;
 	
 	/**
 	 * Create the frame.
@@ -57,7 +55,7 @@ public class NetworkInformationWindow extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		contentPane.add(tabbedPane, BorderLayout.CENTER);
 		
 		JPanel pnlSettings = new JPanel();
@@ -134,114 +132,118 @@ public class NetworkInformationWindow extends JFrame {
 			separator[i].setBounds(10, 69, 287, 2);
 			pnlElements[i].add(separator[i]);
 			
-			pnlMonitor = new JPanel();
-			pnlMonitor.setBounds(10, 82, 287, 161);
-			pnlElements[i].add(pnlMonitor);
-			pnlMonitor.setLayout(null);
+			pnlMonitor[i] = new JPanel();
+			pnlMonitor[i].setBounds(10, 82, 287, 161);
+			pnlElements[i].add(pnlMonitor[i]);
+			pnlMonitor[i].setLayout(null);
 			
-			lblCurrent = new JLabel("Current QoS Metrics:");
-			lblCurrent.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			lblCurrent.setBounds(0, 0, 287, 24);
-			pnlMonitor.add(lblCurrent);
+			lblCurrent[i] = new JLabel("Current QoS Metrics:");
+			lblCurrent[i].setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblCurrent[i].setBounds(0, 0, 287, 24);
+			pnlMonitor[i].add(lblCurrent[i]);
 			
-			lblPacketLoss = new JLabel("Packet Loss: <TEST>%");
-			lblPacketLoss.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblPacketLoss.setBounds(10, 42, 258, 24);
-			pnlMonitor.add(lblPacketLoss);
+			lblPacketLoss[i] = new JLabel("Packet Loss: <TEST>%");
+			lblPacketLoss[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblPacketLoss[i].setBounds(10, 42, 258, 24);
+			pnlMonitor[i].add(lblPacketLoss[i]);
 			
-			lblLatency = new JLabel("Latency: <TEST>ms");
-			lblLatency.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblLatency.setBounds(10, 67, 258, 24);
-			pnlMonitor.add(lblLatency);
+			lblLatency[i] = new JLabel("Latency: <TEST>ms");
+			lblLatency[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblLatency[i].setBounds(10, 67, 258, 24);
+			pnlMonitor[i].add(lblLatency[i]);
 			
-			lblJitter = new JLabel("Jitter: <TEST>ms");
-			lblJitter.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblJitter.setBounds(10, 92, 258, 24);
-			pnlMonitor.add(lblJitter);
+			lblJitter[i] = new JLabel("Jitter: <TEST>ms");
+			lblJitter[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblJitter[i].setBounds(10, 92, 258, 24);
+			pnlMonitor[i].add(lblJitter[i]);
 			
-			lblThroughput = new JLabel("Throughput: <TEST>Mbps");
-			lblThroughput.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblThroughput.setBounds(10, 117, 258, 24);
-			pnlMonitor.add(lblThroughput);
+			lblThroughput[i] = new JLabel("Throughput: <TEST>Mbps");
+			lblThroughput[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblThroughput[i].setBounds(10, 117, 258, 24);
+			pnlMonitor[i].add(lblThroughput[i]);
 			
-			pnlDetect = new JPanel();
-			pnlDetect.setVisible(false);
-			pnlDetect.setBounds(10, 79, 287, 249);
-			pnlElements[i].add(pnlDetect);
-			pnlDetect.setLayout(null);
+			pnlDetect[i] = new JPanel();
+			pnlDetect[i].setVisible(false);
+			pnlDetect[i].setBounds(10, 79, 287, 249);
+			pnlElements[i].add(pnlDetect[i]);
+			pnlDetect[i].setLayout(null);
 			
-			lblCurrentlyScanning = new JLabel("Currently Scanning:");
-			lblCurrentlyScanning.setFont(new Font("Tahoma", Font.ITALIC, 15));
-			lblCurrentlyScanning.setBounds(10, 11, 267, 31);
-			pnlDetect.add(lblCurrentlyScanning);
+			lblCurrentlyScanning[i] = new JLabel("Currently Scanning:");
+			lblCurrentlyScanning[i].setFont(new Font("Tahoma", Font.ITALIC, 15));
+			lblCurrentlyScanning[i].setBounds(10, 11, 267, 31);
+			pnlDetect[i].add(lblCurrentlyScanning[i]);
 			
-			lblNode = new JLabel("<NODE>");
-			lblNode.setHorizontalAlignment(SwingConstants.CENTER);
-			lblNode.setFont(new Font("Tahoma", Font.PLAIN, 13));
-			lblNode.setBounds(10, 43, 267, 25);
-			pnlDetect.add(lblNode);
+			lblNode[i] = new JLabel("<NODE>");
+			lblNode[i].setHorizontalAlignment(SwingConstants.CENTER);
+			lblNode[i].setFont(new Font("Tahoma", Font.PLAIN, 13));
+			lblNode[i].setBounds(10, 43, 267, 25);
+			pnlDetect[i].add(lblNode[i]);
 			
-			lblMetricsHere = new JLabel("Metrics Here:");
-			lblMetricsHere.setFont(new Font("Tahoma", Font.ITALIC, 15));
-			lblMetricsHere.setBounds(10, 66, 267, 31);
-			pnlDetect.add(lblMetricsHere);
+			lblMetricsHere[i] = new JLabel("Metrics Here:");
+			lblMetricsHere[i].setFont(new Font("Tahoma", Font.ITALIC, 15));
+			lblMetricsHere[i].setBounds(10, 66, 267, 31);
+			pnlDetect[i].add(lblMetricsHere[i]);
 			
-			lblDPacketLoss = new JLabel("Packet Loss: <TEST>%");
-			lblDPacketLoss.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDPacketLoss.setBounds(10, 100, 258, 24);
-			pnlDetect.add(lblDPacketLoss);
+			lblDPacketLoss[i] = new JLabel("Packet Loss: <TEST>%");
+			lblDPacketLoss[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblDPacketLoss[i].setBounds(10, 100, 258, 24);
+			pnlDetect[i].add(lblDPacketLoss[i]);
 			
-			lblDLatency = new JLabel("Latency: <TEST>ms");
-			lblDLatency.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDLatency.setBounds(10, 125, 258, 24);
-			pnlDetect.add(lblDLatency);
+			lblDLatency[i] = new JLabel("Latency: <TEST>ms");
+			lblDLatency[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblDLatency[i].setBounds(10, 125, 258, 24);
+			pnlDetect[i].add(lblDLatency[i]);
 			
-			lblDJitter = new JLabel("Jitter: <TEST>ms");
-			lblDJitter.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDJitter.setBounds(10, 150, 258, 24);
-			pnlDetect.add(lblDJitter);
+			lblDJitter[i] = new JLabel("Jitter: <TEST>ms");
+			lblDJitter[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblDJitter[i].setBounds(10, 150, 258, 24);
+			pnlDetect[i].add(lblDJitter[i]);
 			
-			lblDThroughput = new JLabel("Throughput: <TEST>Mbps");
-			lblDThroughput.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDThroughput.setBounds(10, 175, 258, 24);
-			pnlDetect.add(lblDThroughput);
+			lblDThroughput[i] = new JLabel("Throughput: <TEST>Mbps");
+			lblDThroughput[i].setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblDThroughput[i].setBounds(10, 175, 258, 24);
+			pnlDetect[i].add(lblDThroughput[i]);
 			
-			sepDetect = new JSeparator();
-			sepDetect.setBounds(0, 210, 287, 2);
-			pnlDetect.add(sepDetect);
+			sepDetect[i] = new JSeparator();
+			sepDetect[i].setBounds(0, 210, 287, 2);
+			pnlDetect[i].add(sepDetect[i]);
 			
-			lblIndicator = new JLabel("No Problem Here");
-			lblIndicator.setHorizontalAlignment(SwingConstants.CENTER);
-			lblIndicator.setFont(new Font("Tahoma", Font.PLAIN, 13));
-			lblIndicator.setBounds(10, 224, 267, 14);
-			pnlDetect.add(lblIndicator);
-		}
-		
-		//For testing purposes
-		JPanel pnltest = new JPanel();
-		tabbedPane.addTab(" #", null, pnltest, null);
-		pnltest.setLayout(null);
-		
-		JLabel lblCurrentStat = new JLabel("Current State:");
-		lblCurrentStat.setHorizontalAlignment(SwingConstants.CENTER);
-		lblCurrentStat.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblCurrentStat.setBounds(10, 11, 287, 24);
-		pnltest.add(lblCurrentStat);
-		
-		JLabel lblMod = new JLabel("Monitor Mode");
-		lblMod.setHorizontalAlignment(SwingConstants.CENTER);
-		lblMod.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblMod.setBounds(10, 34, 287, 24);
-		pnltest.add(lblMod);
-		
-		JSeparator separato = new JSeparator();
-		separato.setBounds(10, 69, 287, 2);
-		pnltest.add(separato);
-		
-		
+			lblIndicator[i] = new JLabel("No Problem Here");
+			lblIndicator[i].setHorizontalAlignment(SwingConstants.CENTER);
+			lblIndicator[i].setFont(new Font("Tahoma", Font.PLAIN, 13));
+			lblIndicator[i].setBounds(10, 224, 267, 14);
+			pnlDetect[i].add(lblIndicator[i]);
+		}		
 	}
 	
 	public void changeNodeMode(Node current, int type){
 		//We get which node corresponds.
+		int nodeVal = position.get(current);
+		
+		//Now we change that window information.
+		if (type == 0){
+			//We have monitor mode.
+			lblMode[nodeVal].setText("Monitor Mode");
+			pnlMonitor[nodeVal].setVisible(true);
+			pnlDetect[nodeVal].setVisible(false);
+		} else {
+			lblMode[nodeVal].setText("Detection Mode");
+			pnlMonitor[nodeVal].setVisible(false);
+			pnlDetect[nodeVal].setVisible(true);
+			
+			//Sets focus to tab for detection mode.
+			tabbedPane.setSelectedIndex(nodeVal + 1);
+		}
+	}
+
+	public void passMonitorMetrics(Node current, int[] currentQoS) {
+		//Get the node value.
+		int nodeVal = position.get(current);
+		
+		//Sets up each of the values.
+		lblPacketLoss[nodeVal].setText("Packet Loss: " + currentQoS[0] + "%"); 
+		lblLatency[nodeVal].setText("Latency: " + currentQoS[1] + "ms"); 
+		lblJitter[nodeVal].setText("Jitter: " + currentQoS[2] + "ms"); 
+		lblThroughput[nodeVal].setText("Throughput: " + currentQoS[3] + Link.BAND_TYPE.valueOf(currentQoS[4])); 
 	}
 }

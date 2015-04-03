@@ -64,7 +64,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 	
 	//Main network controller.
 	public NetworkController control;
-	public NetworkInformationWindow informationWindow;
+	public static NetworkInformationWindow informationWindow;
 	
 	//JMenu Items
 	JMenuItem mntmNew;

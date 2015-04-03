@@ -32,26 +32,13 @@ public class Monitor implements Runnable {
 		//Executes when the program runs.
 		while(true){
 			//Performs monitor and then detection mode.
-			System.out.println(node.getType().getName() + " is entering monitor mode.");
 			boolean success = monitorMode();
 			
 			if (!success){
 				controller.graphWindow.setNodeIcon(node, 2);
-				System.out.println(node.getType().getName() + " is entering detection mode.");
 				detectionMode(node);
 			} else {
 				controller.graphWindow.setNodeIcon(node, 1);
-				System.out.println(node.getType().getName() + " found no QoS Metric errors.");
-			}
-			
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				
-				//Aborts the thread.
-				System.out.println("\nAborting " + node.getType().getName() + ".");
-				break;
 			}
 		}
 	}
@@ -65,6 +52,9 @@ public class Monitor implements Runnable {
 	}
 	
 	private boolean monitorMode(){
+		//Notifies GUI that we are in monitor mode.
+		NetworkWindow.informationWindow.changeNodeMode(node, 0);
+		
 		//We request data from the controller.
 		int[] currentQoS = null;
 				
@@ -77,12 +67,7 @@ public class Monitor implements Runnable {
 			return true;
 		}			
 		
-		//We need to check whether the metrics meet standards.
-		System.out.println(node.getType().getName() + " Benchmarks:\n" +
-						   "Packet Loss: " + currentQoS[0] + "%\n" +
-						   "Jitter: " + currentQoS[1] + "ms\n" +
-						   "Latency: " + currentQoS[2] + "ms\n" +
-						   "Throughput: " + currentQoS[3] + Link.BAND_TYPE.valueOf(currentQoS[4]) + "\n");
+		//We check for the metrics.
 		return checkMetrics(currentQoS);
 	}
 	
@@ -102,18 +87,14 @@ public class Monitor implements Runnable {
 			}
 		}
 		
+		//Passes the metrics to the GUI window.
+		NetworkWindow.informationWindow.passMonitorMetrics(node, currentQoS);
 		return true;
 	}
 
 	private void detectionMode(Node userWithProblem){
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			
-			//Aborts the thread.
-			System.out.println("\nAborting " + node.getType().getName() + ".");
-		}
+		//Notifies GUI that we are in detection mode.
+		NetworkWindow.informationWindow.changeNodeMode(node, 1);
 		
 		//First, we get the graph for the entire topology.
 		Graph<Node, Link> graph = controller.requestErrorGraph();
@@ -138,15 +119,6 @@ public class Monitor implements Runnable {
 			} else {
 				controller.graphWindow.setNodeIcon(currentNode, 1);
 			}
-			
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				
-				//Aborts the thread.
-				System.out.println("\nAborting " + node.getType().getName() + ".");
-			}
 		}
 		
 		//Notifies the controller of its answer.
@@ -154,17 +126,6 @@ public class Monitor implements Runnable {
 		if (!correct){
 			//Will be handled if incorrect.
 		}
-		
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			
-			//Aborts the thread.
-			System.out.println("\nAborting " + node.getType().getName() + ".");
-		}
-		
-		System.out.println(node.getType().getName() + " found the error.");
 		resetColours(graph);
 	}
 
