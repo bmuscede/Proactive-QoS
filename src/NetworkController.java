@@ -33,6 +33,9 @@ public class NetworkController {
 	//Thread sleep times.
 	private static int sleepTime = 5000;
 	
+	//Pause boolean.
+	public static boolean pauseBoolean = false;
+	
 	/**********************************
 	 * 
 	 * NEWTORKCONTROLLER constructor
@@ -505,6 +508,15 @@ public class NetworkController {
 	}
 	public static int getSleepTime(){
 		return sleepTime;
+	}
+
+
+	public static void setPaused(boolean paused) {
+		if (paused){
+			pauseBoolean = true;
+		} else {
+			pauseBoolean = false;
+		}
 	}
 	
 }

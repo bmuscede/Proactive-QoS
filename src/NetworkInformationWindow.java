@@ -6,6 +6,8 @@ import java.awt.Image;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -22,6 +24,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class NetworkInformationWindow extends JFrame {
 	private HashMap<Node, Integer> position;
@@ -83,16 +87,22 @@ public class NetworkInformationWindow extends JFrame {
 		pnlSettings.add(separator_1);
 		
 		JLabel lblChangeTimeoutRate = new JLabel("Change Timeout Rate:");
-		lblChangeTimeoutRate.setBounds(10, 72, 117, 20);
+		lblChangeTimeoutRate.setBounds(10, 72, 135, 20);
 		pnlSettings.add(lblChangeTimeoutRate);
 		
-		JSpinner spnRate = new JSpinner();
+		final JSpinner spnRate = new JSpinner();
 		spnRate.setModel(new SpinnerNumberModel(new Integer(5000), new Integer(1), null, new Integer(1)));
-		spnRate.setBounds(137, 72, 89, 20);
+		spnRate.setBounds(155, 72, 89, 20);
+		spnRate.addChangeListener(new ChangeListener() {
+	        @Override
+	        public void stateChanged(ChangeEvent e) {
+	            NetworkController.setSleepTime((int) spnRate.getValue());
+	        }
+	    });
 		pnlSettings.add(spnRate);
 		
 		JLabel lblMs = new JLabel("ms");
-		lblMs.setBounds(233, 75, 46, 14);
+		lblMs.setBounds(251, 75, 46, 14);
 		pnlSettings.add(lblMs);
 		
 		JSeparator separator_2 = new JSeparator();
@@ -108,7 +118,40 @@ public class NetworkInformationWindow extends JFrame {
 		img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
 		icon = new ImageIcon(img);
 		
-		JButton btnPause = new JButton("Pause");
+		final JButton btnPause = new JButton("Pause");
+		btnPause.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (btnPause.getText().equals("Pause")){
+					//Indicates that threads will be paused.
+					NetworkController.setPaused(true);
+					
+					//Changes the button.
+					btnPause.setText("Resume");
+					String imageLoc = System.getProperty("user.dir") + "/images/resume.png";		
+					ImageIcon icon = new ImageIcon(imageLoc);
+					  
+					//Modify the image.
+					Image img = icon.getImage();
+					img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
+					icon = new ImageIcon(img);
+					btnPause.setIcon(icon);
+				} else {
+					//Indicates that threads will be woken up.
+					NetworkController.setPaused(false);
+					
+					//Changes the button.
+					btnPause.setText("Resume");
+					String imageLoc = System.getProperty("user.dir") + "/images/pause.png";		
+					ImageIcon icon = new ImageIcon(imageLoc);
+					  
+					//Modify the image.
+					Image img = icon.getImage();
+					img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
+					icon = new ImageIcon(img);
+					btnPause.setIcon(icon);
+				}
+			}
+		});
 
 		//Set it as the button.
 		btnPause.setIcon(icon);
@@ -116,7 +159,7 @@ public class NetworkInformationWindow extends JFrame {
 		//Add the text.
 		btnPause.setVerticalTextPosition(SwingConstants.BOTTOM);
 	    btnPause.setHorizontalTextPosition(SwingConstants.CENTER);
-		btnPause.setBounds(10, 305, 89, 23);
+		btnPause.setBounds(10, 269, 89, 59);
 		pnlSettings.add(btnPause);
 		
 		//First, set the button icon.
@@ -136,7 +179,7 @@ public class NetworkInformationWindow extends JFrame {
 		//Add the text.
 		btnStop.setVerticalTextPosition(SwingConstants.BOTTOM);
 	    btnStop.setHorizontalTextPosition(SwingConstants.CENTER);
-		btnStop.setBounds(208, 305, 89, 23);
+		btnStop.setBounds(208, 269, 89, 59);
 		pnlSettings.add(btnStop);
 		
 		//Gets the number of DSL and VoIP end nodes.
