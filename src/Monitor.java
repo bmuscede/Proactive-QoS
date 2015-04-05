@@ -32,15 +32,15 @@ public class Monitor implements Runnable {
 	public void run() {
 		//Executes when the program runs.
 		while(isRunning){
-			//Performs monitor and then detection mode.
+			//First, performs monitor mode.
 			boolean success = monitorMode();
+			
+			//Sleeps for the user.
 			sleepThread();
 			
+			//Checks to see if we need to perform detection.
 			if (!success){
-				controller.graphWindow.setNodeIcon(node, 2);
 				detectionMode(node);
-			} else {
-				controller.graphWindow.setNodeIcon(node, 1);
 			}
 		}
 	}
@@ -101,6 +101,14 @@ public class Monitor implements Runnable {
 		
 		//Passes the metrics to the GUI window.
 		NetworkWindow.informationWindow.passMonitorMetrics(node, currentQoS, improper);
+		
+		//Indicates whether we have success.
+		if (goodQoS){
+			controller.graphWindow.setNodeIcon(node, 1);
+		} else {
+			controller.graphWindow.setNodeIcon(node, 2);	
+		}
+		
 		return goodQoS;
 	}
 
@@ -139,6 +147,7 @@ public class Monitor implements Runnable {
 				controller.graphWindow.setNodeIcon(currentNode, 1);
 			}
 			
+			//Sleeps for the thread.
 			sleepThread();
 		}
 		
