@@ -1,5 +1,8 @@
 Current Issues:
+
 -Better QoS Metrics Prediction (Currently values of 0 and throughputs of 
 > 8Tbps are being generated)
 
 
+
+-Need to fix detection mode.
