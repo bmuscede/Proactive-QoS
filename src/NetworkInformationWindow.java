@@ -284,4 +284,33 @@ public class NetworkInformationWindow extends JFrame {
 			lblIndicator[nodeVal].setText("No QoS Problem Here");
 		}
 	}
+	
+	public void passDetectionMetrics(Node source, Node current, boolean[] qosError){
+		//Get the node value.
+		int nodeVal = position.get(source);
+		
+		//Sets up each of the values.
+		lblDPacketLoss[nodeVal].setText("Packet Loss: " + current.currPacketLoss + "%"); 
+		lblDLatency[nodeVal].setText("Latency: " + current.currLatency + "ms"); 
+		lblDJitter[nodeVal].setText("Jitter: " + current.currJitter + "ms"); 
+		lblDThroughput[nodeVal].setText("Throughput: " + current.currThroughput + current.currThroughputType.getName()); 
+		
+		//Changes their colours.
+		if (qosError[0]) 
+			lblPacketLoss[nodeVal].setForeground(Color.RED);
+		else
+			lblPacketLoss[nodeVal].setForeground(Color.GREEN);
+		if (qosError[1]) 
+			lblLatency[nodeVal].setForeground(Color.RED);
+		else
+			lblLatency[nodeVal].setForeground(Color.GREEN);
+		if (qosError[2]) 
+			lblJitter[nodeVal].setForeground(Color.RED);
+		else
+			lblJitter[nodeVal].setForeground(Color.GREEN);
+		if (qosError[3]) 
+			lblThroughput[nodeVal].setForeground(Color.RED);
+		else
+			lblThroughput[nodeVal].setForeground(Color.GREEN);
+	}
 }
