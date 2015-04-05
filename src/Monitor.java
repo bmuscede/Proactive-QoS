@@ -219,10 +219,13 @@ public class Monitor implements Runnable {
 	}
 	
 	private void sleepThread(){
-		try {
-			Thread.sleep(NetworkController.getSleepTime());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		do {
+			try {
+				//Sleeps the thread.
+				Thread.sleep(NetworkController.getSleepTime());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} while (NetworkController.pauseBoolean); //Keeps looping if paused.
 	}
 }
