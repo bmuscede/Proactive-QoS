@@ -249,16 +249,35 @@ public class NetworkController {
 		//GENERATE MERTICS FOR NODES IN PATH
 		//fill in qOs metrics 
 		Iterator<Node> findBadNode = path.iterator();
-	    Node problemNode = null;
+	    Node nextNode = null;
+	    int nodeQoS[] = new int[4];
+	    int totalLatency = userNode.currLatency;
+	    int pathSize = path.size();
+	    int latency;
 	    i = 0;
 		while (i <= findBad){
 		  //Gets the next node.
-		  problemNode = findBadNode.next();
-
+		  nextNode = findBadNode.next();
+		  latency = totalLatency/pathSize;
+		  
 		  if(i == findBad){
-			  errorNode = problemNode;
-			  break;
+			  errorNode = nextNode;
+			  nodeQoS[0] = (badMetrics[0] == true)? 5 : 0; //packet loss
+			  nodeQoS[1] = (badMetrics[1] == true)? generator.nextInt(10) + currentBenchmark[1] : generator.nextInt(currentBenchmark[1]); //jitter
+			  //latency
+			  nodeQoS[2] = (badMetrics[2] == true)? generator.nextInt(50) + (currentBenchmark[2] - 10) : generator.nextInt(latency-9) + 10; 
+			  nodeQoS[3] = (badMetrics[3] == true)? 0 : 0; //throughput
 		  }
+		  else{
+			  nodeQoS[0] = 0; //packet loss
+			  nodeQoS[1] = generator.nextInt(currentBenchmark[1]); //jitter
+			  //generate random latency value between 10 and total latency divided by path size
+			  nodeQoS[2] = generator.nextInt(latency-9) + 10; 
+			  nodeQoS[3] = 0; //throughput
+		  }
+		  
+		  totalLatency = totalLatency - latency;
+		  pathSize--;
 		  
 		  i++;
 		 }
