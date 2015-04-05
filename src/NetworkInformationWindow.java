@@ -140,7 +140,7 @@ public class NetworkInformationWindow extends JFrame {
 					NetworkController.setPaused(false);
 					
 					//Changes the button.
-					btnPause.setText("Resume");
+					btnPause.setText("Pause");
 					String imageLoc = System.getProperty("user.dir") + "/images/pause.png";		
 					ImageIcon icon = new ImageIcon(imageLoc);
 					  
@@ -172,6 +172,13 @@ public class NetworkInformationWindow extends JFrame {
 		icon = new ImageIcon(img);
 		
 		JButton btnStop = new JButton("Stop");
+		btnStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//We need to call the Network Controller.
+				NetworkWindow.resetSimulation();
+				dispose();
+			}
+		});
 
 		//Set it as the button.
 		btnStop.setIcon(icon);

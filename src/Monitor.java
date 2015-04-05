@@ -22,7 +22,8 @@ public class Monitor implements Runnable {
 	private Node node;
 	private int[] benchmarks;
 	public volatile static NetworkController controller;
-	
+	private volatile boolean isRunning = true;
+	   
 	public Monitor(Node dslNode, int[] benchmarks){
 		node = dslNode;
 		this.benchmarks = benchmarks;
@@ -30,7 +31,7 @@ public class Monitor implements Runnable {
 	
 	public void run() {
 		//Executes when the program runs.
-		while(true){
+		while(isRunning){
 			//Performs monitor and then detection mode.
 			boolean success = monitorMode();
 			sleepThread();
@@ -43,8 +44,11 @@ public class Monitor implements Runnable {
 			}
 		}
 	}
-
-	public void start() {
+   public void kill() {
+       isRunning = false;
+   }
+   
+   public void start() {
 		//Checks if the thread is already running.
 		if (thread == null){
 			thread = new Thread(this);

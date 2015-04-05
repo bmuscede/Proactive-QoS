@@ -63,11 +63,11 @@ public class NetworkWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = -1880325660041879306L;
 	
 	//Main network controller.
-	public NetworkController control;
+	public static NetworkController control;
 	public static NetworkInformationWindow informationWindow;
 	
 	//Buttons
-	JButton[] buttons;
+	static JButton[] buttons;
 	
 	//JMenu Items
 	JMenuItem mntmNew;
@@ -638,5 +638,19 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		
 		//Repaints the panel.
 		pnlGraph.repaint();
+	}
+
+	public static void resetSimulation() {
+		//Removes the network controller (Using JVM GC)
+		control.removeNodes();
+		control = null;
+		
+		//Re-enables the buttons.
+		buttons[0].setEnabled(true);
+		buttons[1].setEnabled(true);
+		buttons[2].setEnabled(true);
+		buttons[3].setEnabled(true);
+		buttons[4].setEnabled(true);
+		buttons[7].setEnabled(true);
 	}
 }

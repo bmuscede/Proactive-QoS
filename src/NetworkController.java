@@ -518,5 +518,19 @@ public class NetworkController {
 			pauseBoolean = false;
 		}
 	}
-	
+
+
+	public void removeNodes() {
+		//Nullifies the nodes.
+		for (int i = 0; i < dslNodes.size(); i++){
+			Monitor current = dslNodes.elementAt(i);
+			current.kill();
+		}
+		for (int i = 0; i < voipNodes.size(); i++){
+			Monitor current = voipNodes.elementAt(i);
+			current.kill();
+		}
+		dslNodes = null;
+		voipNodes = null;
+	}	
 }
