@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
 
 import edu.uci.ics.jung.graph.Graph;
+import javax.swing.JSpinner;
 
 public class NetworkInformationWindow extends JFrame {
 	private HashMap<Node, Integer> position;
@@ -61,6 +62,29 @@ public class NetworkInformationWindow extends JFrame {
 		
 		JPanel pnlSettings = new JPanel();
 		tabbedPane.addTab("Simulator Settings", null, pnlSettings, null);
+		pnlSettings.setLayout(null);
+		
+		JLabel lblSettings = new JLabel("Simulation Settings\r\n");
+		lblSettings.setFont(new Font("Tahoma", Font.BOLD, 15));
+		lblSettings.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSettings.setBounds(10, 11, 287, 28);
+		pnlSettings.add(lblSettings);
+		
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setBounds(10, 48, 287, 2);
+		pnlSettings.add(separator_1);
+		
+		JLabel lblChangeTimeoutRate = new JLabel("Change Timeout Rate:");
+		lblChangeTimeoutRate.setBounds(10, 72, 117, 20);
+		pnlSettings.add(lblChangeTimeoutRate);
+		
+		JSpinner spnRate = new JSpinner();
+		spnRate.setBounds(137, 72, 89, 20);
+		pnlSettings.add(spnRate);
+		
+		JLabel lblMs = new JLabel("ms");
+		lblMs.setBounds(233, 75, 46, 14);
+		pnlSettings.add(lblMs);
 		
 		//Gets the number of DSL and VoIP end nodes.
 		Iterator<Node> graphIt = graph.getVertices().iterator();
