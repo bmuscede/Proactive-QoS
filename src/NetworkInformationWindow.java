@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Image;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -15,7 +16,12 @@ import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
 
 import edu.uci.ics.jung.graph.Graph;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.JButton;
 
 public class NetworkInformationWindow extends JFrame {
 	private HashMap<Node, Integer> position;
@@ -42,6 +48,8 @@ public class NetworkInformationWindow extends JFrame {
 	private JSeparator[] sepDetect;
 	private JLabel[] lblIndicator;
 	private JTabbedPane tabbedPane;
+	
+	private final int SIZE = 20;
 	
 	/**
 	 * Create the frame.
@@ -79,12 +87,57 @@ public class NetworkInformationWindow extends JFrame {
 		pnlSettings.add(lblChangeTimeoutRate);
 		
 		JSpinner spnRate = new JSpinner();
+		spnRate.setModel(new SpinnerNumberModel(new Integer(5000), new Integer(1), null, new Integer(1)));
 		spnRate.setBounds(137, 72, 89, 20);
 		pnlSettings.add(spnRate);
 		
 		JLabel lblMs = new JLabel("ms");
 		lblMs.setBounds(233, 75, 46, 14);
 		pnlSettings.add(lblMs);
+		
+		JSeparator separator_2 = new JSeparator();
+		separator_2.setBounds(10, 113, 287, 2);
+		pnlSettings.add(separator_2);
+		
+		//First, set the button icon.
+		String imageLoc = System.getProperty("user.dir") + "/images/pause.png";		
+		ImageIcon icon = new ImageIcon(imageLoc);
+		  
+		//Modify the image.
+		Image img = icon.getImage();
+		img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
+		icon = new ImageIcon(img);
+		
+		JButton btnPause = new JButton("Pause");
+
+		//Set it as the button.
+		btnPause.setIcon(icon);
+		
+		//Add the text.
+		btnPause.setVerticalTextPosition(SwingConstants.BOTTOM);
+	    btnPause.setHorizontalTextPosition(SwingConstants.CENTER);
+		btnPause.setBounds(10, 305, 89, 23);
+		pnlSettings.add(btnPause);
+		
+		//First, set the button icon.
+		imageLoc = System.getProperty("user.dir") + "/images/stop.png";		
+		icon = new ImageIcon(imageLoc);
+		  
+		//Modify the image.
+		img = icon.getImage();
+		img = img.getScaledInstance(SIZE, SIZE, java.awt.Image.SCALE_SMOOTH);
+		icon = new ImageIcon(img);
+		
+		JButton btnStop = new JButton("Stop");
+
+		//Set it as the button.
+		btnStop.setIcon(icon);
+		
+		//Add the text.
+		btnStop.setVerticalTextPosition(SwingConstants.BOTTOM);
+	    btnStop.setHorizontalTextPosition(SwingConstants.CENTER);
+		btnStop.setBounds(208, 305, 89, 23);
+		pnlSettings.add(btnStop);
 		
 		//Gets the number of DSL and VoIP end nodes.
 		Iterator<Node> graphIt = graph.getVertices().iterator();

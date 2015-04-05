@@ -66,6 +66,9 @@ public class NetworkWindow extends JFrame implements ActionListener {
 	public NetworkController control;
 	public static NetworkInformationWindow informationWindow;
 	
+	//Buttons
+	JButton[] buttons;
+	
 	//JMenu Items
 	JMenuItem mntmNew;
 	JMenuItem mntmOpen;
@@ -185,7 +188,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 
 		//Generate image operations.
 		icons = new String[iconFiles.length];
-		JButton[] buttons = new JButton[buttonLabels.length];
+		buttons = new JButton[buttonLabels.length];
 		  
 		//Insert them into the toolbar.
 		for (int i = 0; i < buttonLabels.length; ++i) {
@@ -333,6 +336,15 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			int[] dslBenchmarks = parameters.getDSL();
 			int[] voipBenchmarks = parameters.getVoIP();
 			int failureRate = parameters.getFailure();
+			
+			//We disable some of the simulation buttons.
+			buttons[0].setEnabled(false);
+			buttons[1].setEnabled(false);
+			buttons[2].setEnabled(false);
+			buttons[3].setEnabled(false);
+			buttons[4].setEnabled(false);
+			buttons[7].setEnabled(false);
+			gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 			
 			//We start the network information pane.
 			informationWindow = new NetworkInformationWindow(graph);
