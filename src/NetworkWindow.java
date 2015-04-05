@@ -664,5 +664,8 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			Node current = vertices.next();
 			setNodeIcon(current, 0);
 		}
+		
+		//Repaints the panel.
+		pnlGraph.repaint();
 	}
 }
