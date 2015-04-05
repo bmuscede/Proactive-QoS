@@ -51,6 +51,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.JToolBar;
@@ -347,7 +348,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
 			
 			//We start the network information pane.
-			informationWindow = new NetworkInformationWindow(graph);
+			informationWindow = new NetworkInformationWindow(graph, this);
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	        GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
 	        Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
@@ -640,7 +641,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		pnlGraph.repaint();
 	}
 
-	public static void resetSimulation() {
+	public void resetSimulation() {
 		//Removes the network controller (Using JVM GC)
 		control.removeNodes();
 		control = null;
@@ -652,5 +653,16 @@ public class NetworkWindow extends JFrame implements ActionListener {
 		buttons[3].setEnabled(true);
 		buttons[4].setEnabled(true);
 		buttons[7].setEnabled(true);
+		
+		resetColours();
+	}
+	
+	
+	private void resetColours() {
+		Iterator<Node> vertices = graph.getVertices().iterator();
+		while (vertices.hasNext()){
+			Node current = vertices.next();
+			setNodeIcon(current, 0);
+		}
 	}
 }

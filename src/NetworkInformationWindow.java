@@ -1,6 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Image;
 
 import javax.swing.JFrame;
@@ -19,7 +18,6 @@ import javax.swing.JSeparator;
 
 import edu.uci.ics.jung.graph.Graph;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -28,6 +26,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class NetworkInformationWindow extends JFrame {
+	private static final long serialVersionUID = 2623914264077949541L;
+
 	private HashMap<Node, Integer> position;
 	
 	private JPanel contentPane;
@@ -54,11 +54,13 @@ public class NetworkInformationWindow extends JFrame {
 	private JTabbedPane tabbedPane;
 	
 	private final int SIZE = 20;
+	private NetworkWindow networkWindow;
 	
 	/**
 	 * Create the frame.
 	 */
-	public NetworkInformationWindow(Graph<Node, Link> graph) {
+	public NetworkInformationWindow(Graph<Node, Link> graph, NetworkWindow parent) {
+		networkWindow = parent;
 		setResizable(false);
 		setAlwaysOnTop(true);
 		setTitle("Network Status");
@@ -175,7 +177,7 @@ public class NetworkInformationWindow extends JFrame {
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//We need to call the Network Controller.
-				NetworkWindow.resetSimulation();
+				networkWindow.resetSimulation();
 				dispose();
 			}
 		});
