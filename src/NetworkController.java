@@ -252,27 +252,29 @@ public class NetworkController {
 	    Node nextNode = null;
 	    int nodeQoS[] = new int[4];
 	    int totalLatency = userNode.currLatency;
-	    int pathSize = path.size();
+	    int pathSize = path.size()-1;
 	    int latency;
 	    i = 0;
-		while (i <= findBad){
+		while (findBadNode.hasNext()){
 		  //Gets the next node.
 		  nextNode = findBadNode.next();
-		  latency = totalLatency/pathSize;
+		 //random number between 10 and total_latency/path_size or just evenly divide latency
+		  latency = (badMetrics[2] == true) ? generator.nextInt((totalLatency/pathSize)-9) + 10 : totalLatency/pathSize; 
 		  
 		  if(i == findBad){
 			  errorNode = nextNode;
 			  nodeQoS[0] = (badMetrics[0] == true)? 5 : 0; //packet loss
 			  nodeQoS[1] = (badMetrics[1] == true)? generator.nextInt(10) + currentBenchmark[1] : generator.nextInt(currentBenchmark[1]); //jitter
 			  //latency
-			  nodeQoS[2] = (badMetrics[2] == true)? generator.nextInt(50) + (currentBenchmark[2] - 10) : generator.nextInt(latency-9) + 10; 
+			  latency = (badMetrics[2] == true)? generator.nextInt(10) + (totalLatency/pathSize) : latency;
+			  nodeQoS[2] = latency; 
 			  nodeQoS[3] = (badMetrics[3] == true)? 0 : 0; //throughput
 		  }
 		  else{
 			  nodeQoS[0] = 0; //packet loss
 			  nodeQoS[1] = generator.nextInt(currentBenchmark[1]); //jitter
 			  //generate random latency value between 10 and total latency divided by path size
-			  nodeQoS[2] = generator.nextInt(latency-9) + 10; 
+			  nodeQoS[2] = latency; 
 			  nodeQoS[3] = 0; //throughput
 		  }
 		  
