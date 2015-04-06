@@ -261,7 +261,7 @@ public class NetworkController {
 		 //random number between 10 and total_latency/path_size or just evenly divide latency
 		  latency = (badMetrics[2] == true) ? generator.nextInt((totalLatency/pathSize)-9) + 10 : totalLatency/pathSize; 
 		  
-		  if(findBad == 0){
+		  if(findBad == 0 && i == findBad){
 			  errorNode = nextNode;
 		  }
 		  else if(i == findBad){
