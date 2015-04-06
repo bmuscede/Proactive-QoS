@@ -261,7 +261,10 @@ public class NetworkController {
 		 //random number between 10 and total_latency/path_size or just evenly divide latency
 		  latency = (badMetrics[2] == true) ? generator.nextInt((totalLatency/pathSize)-9) + 10 : totalLatency/pathSize; 
 		  
-		  if(i == findBad){
+		  if(findBad == 0){
+			  errorNode = nextNode;
+		  }
+		  else if(i == findBad){
 			  errorNode = nextNode;
 			  nodeQoS[0] = (badMetrics[0] == true)? 5 : 0; //packet loss
 			  nodeQoS[1] = (badMetrics[1] == true)? generator.nextInt(10) + currentBenchmark[1] : generator.nextInt(currentBenchmark[1]); //jitter
