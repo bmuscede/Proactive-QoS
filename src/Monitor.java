@@ -17,8 +17,8 @@ import edu.uci.ics.jung.graph.Graph;
 public class Monitor implements Runnable {
 	private Thread thread;
 	
-	private int numIt = 0;
-	private int numErrors = 0;
+	private static volatile int numIt = 0;
+	private static volatile int numErrors = 0;
 	
 	//Variables for the monitor.
 	private Node node;
@@ -171,7 +171,7 @@ public class Monitor implements Runnable {
 		
 		//Indicates the going error rate.
 		float errorPercentage = (((float) numErrors / numIt) * 100);
-		System.out.println("Detection Error Percentage: " + errorPercentage + "%");
+		System.out.print("Detection Error Percentage: " + String.format("%2.2f", errorPercentage) + "%\r");
 	}
 
 	private Node determineNode(Node currentNode, Node problemNode, boolean[] error) {
