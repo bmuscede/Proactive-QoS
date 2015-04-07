@@ -271,16 +271,16 @@ public class NetworkController {
 			  nodeQoS[0] = (badMetrics[0] == true)? generator.nextInt(10) + (totalPacketLoss/pathSize) : packetLoss; //packet loss
 			  nodeQoS[1] = (badMetrics[1] == true)? generator.nextInt(10) + currentBenchmark[1] : generator.nextInt(currentBenchmark[1]); //jitter
 			  nodeQoS[2] = (badMetrics[2] == true)? generator.nextInt(10) + (totalLatency/pathSize) : latency; //latency
-			  nodeQoS[3] = (badMetrics[3] == true)? 0 : 0; //throughput
-			  nodeQoS[4] = (badMetrics[3] == true)? 0 : 0; //throughput values.
+			  nodeQoS[3] = (badMetrics[3] == true)? generator.nextInt(currentBenchmark[3]) : generator.nextInt(1000 - currentBenchmark[3]) + (currentBenchmark[3]); //throughput
+			  nodeQoS[4] = (badMetrics[3] == true)? generator.nextInt(currentBenchmark[4] + 1) : generator.nextInt(Link.BAND_TYPE.TBPS.getInternal() + 1) + currentBenchmark[4]; //throughput values.
 		  }
 		  else{
 			  nodeQoS[0] = packetLoss; //packet loss
 			  nodeQoS[1] = generator.nextInt(currentBenchmark[1]); //jitter
 			  //generate random latency value between 10 and total latency divided by path size
 			  nodeQoS[2] = latency; 
-			  nodeQoS[3] = 0; //throughput
-			  nodeQoS[4] = 0; //throughput values.
+			  nodeQoS[3] = generator.nextInt(1000 - currentBenchmark[3]) + (currentBenchmark[3]); //throughput
+			  nodeQoS[4] = generator.nextInt(Link.BAND_TYPE.TBPS.getInternal() + 1) + currentBenchmark[4]; //throughput values.
 		  }
 		  
 		  totalLatency = totalLatency - latency;
