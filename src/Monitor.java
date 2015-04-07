@@ -151,6 +151,9 @@ public class Monitor implements Runnable {
 			sleepThread();
 		}
 		
+		//Sleeps for the thread.
+		sleepThread();
+		
 		//Notifies the controller of its answer.
 		boolean correct = controller.notifyDetected(problemNode, problemLink);
 		if (!correct){
