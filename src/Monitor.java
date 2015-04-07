@@ -17,6 +17,9 @@ import edu.uci.ics.jung.graph.Graph;
 public class Monitor implements Runnable {
 	private Thread thread;
 	
+	private int numIt = 0;
+	private int numErrors = 0;
+	
 	//Variables for the monitor.
 	private Node node;
 	private int[] benchmarks;
@@ -111,6 +114,8 @@ public class Monitor implements Runnable {
 	}
 
 	private void detectionMode(Node userWithProblem, boolean[] error){
+		numIt++;
+		
 		//Notifies GUI that we are in detection mode.
 		NetworkWindow.informationWindow.changeNodeMode(node, 1);
 		
@@ -160,9 +165,13 @@ public class Monitor implements Runnable {
 		boolean correct = controller.notifyDetected(problemNode, problemLink);
 		if (!correct){
 			//Will be handled if incorrect.
-			System.out.println("Incorrect node/link.");
+			numErrors++;
 		}
 		resetColours(graph);
+		
+		//Indicates the going error rate.
+		float errorPercentage = (((float) numErrors / numIt) * 100);
+		System.out.println("Detection Error Percentage: " + errorPercentage + "%");
 	}
 
 	private Node determineNode(Node currentNode, Node problemNode, boolean[] error) {
@@ -173,18 +182,18 @@ public class Monitor implements Runnable {
 		
 		//Packet Loss
 		if (currentNode.currPacketLoss > problemNode.currPacketLoss && error[0])
-			problemNode = currentNode;
+			return currentNode;
 		//Jitter
 		if (currentNode.currJitter > problemNode.currJitter && error[1])
-			problemNode = currentNode;
+			return currentNode;
 		//Latency
 		if (currentNode.currLatency > problemNode.currLatency && error[2])
-			problemNode = currentNode;
+			return currentNode;
 		//Throughput
 		if ((currentNode.currThroughputType.getInternal() < problemNode.currThroughputType.getInternal() ||
 				(currentNode.currThroughput < problemNode.currThroughput &&
 				currentNode.currThroughputType.getInternal() == problemNode.currThroughputType.getInternal() )) && error[3])
-			problemNode = currentNode;
+			return currentNode;
 		
 		return problemNode;
 	}

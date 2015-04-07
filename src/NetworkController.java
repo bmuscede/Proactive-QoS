@@ -268,9 +268,9 @@ public class NetworkController {
 		  }
 		  else if(i == findBad){
 			  errorNode = nextNode;
-			  nodeQoS[0] = (badMetrics[0] == true)? generator.nextInt(10) + (totalPacketLoss/pathSize) : packetLoss; //packet loss
-			  nodeQoS[1] = (badMetrics[1] == true)? generator.nextInt(10) + currentBenchmark[1] : generator.nextInt(currentBenchmark[1]); //jitter
-			  nodeQoS[2] = (badMetrics[2] == true)? generator.nextInt(10) + (totalLatency/pathSize) : latency; //latency
+			  nodeQoS[0] = (badMetrics[0] == true)? (1 + generator.nextInt(10)) + (totalPacketLoss/pathSize) : packetLoss; //packet loss
+			  nodeQoS[1] = (badMetrics[1] == true)? (1 + generator.nextInt(10)) + currentBenchmark[1] : generator.nextInt(currentBenchmark[1]); //jitter
+			  nodeQoS[2] = (badMetrics[2] == true)? (1 + generator.nextInt(10)) + (totalLatency/pathSize) : latency; //latency
 			  nodeQoS[3] = (badMetrics[3] == true)? generator.nextInt(currentBenchmark[3]) : generator.nextInt(1000 - currentBenchmark[3]) + (currentBenchmark[3]); //throughput
 			  nodeQoS[4] = (badMetrics[3] == true)? generator.nextInt(currentBenchmark[4] + 1) : generator.nextInt(Link.BAND_TYPE.TBPS.getInternal() + 1) + currentBenchmark[4]; //throughput values.
 		  }
