@@ -14,7 +14,6 @@ import cern.colt.Arrays;
 
 import edu.uci.ics.jung.graph.Graph;
 
-
 public class Monitor implements Runnable {
 	private Thread thread;
 	
@@ -33,14 +32,14 @@ public class Monitor implements Runnable {
 		//Executes when the program runs.
 		while(isRunning){
 			//First, performs monitor mode.
-			boolean success = monitorMode();
+			boolean[] problem = monitorMode();
 			
 			//Sleeps for the user.
 			sleepThread();
 			
 			//Checks to see if we need to perform detection.
-			if (!success){
-				detectionMode(node);
+			if (problem[4]){
+				detectionMode(node, problem);
 			}
 		}
 	}
@@ -56,7 +55,7 @@ public class Monitor implements Runnable {
 		}
 	}
 	
-	private boolean monitorMode(){
+	private boolean[] monitorMode(){
 		//Notifies GUI that we are in monitor mode.
 		NetworkWindow.informationWindow.changeNodeMode(node, 0);
 		
@@ -69,29 +68,28 @@ public class Monitor implements Runnable {
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			return true;
+			return null;
 		}			
 		
 		//We check for the metrics.
 		return checkMetrics(currentQoS);
 	}
 	
-	private boolean checkMetrics(int[] currentQoS) {
-		boolean goodQoS = true;
-		boolean improper[] = new boolean[4];
+	private boolean[] checkMetrics(int[] currentQoS) {
+		boolean improper[] = new boolean[5];
 		
 		//Loops through all the QoS values to check.
 		for (int i = 0; i < currentQoS.length - 1; i++){
 			if (i < 3){
 				if (currentQoS[i] >= benchmarks[i]){
-					goodQoS = false;
+					improper[4] = true;
 					improper[i] = true;
 				}
 			} else {
 				if ((currentQoS[i] < benchmarks[i] &&
 				    currentQoS[i + 1] <= benchmarks[i + 1]) ||
 				    currentQoS[i + 1] < benchmarks[i + 1]){
-					goodQoS = false;
+					improper[4] = true;
 					
 					if (i == 4) improper[i - 1] = true;
 					else improper[i] = true;
@@ -103,16 +101,16 @@ public class Monitor implements Runnable {
 		NetworkWindow.informationWindow.passMonitorMetrics(node, currentQoS, improper);
 		
 		//Indicates whether we have success.
-		if (goodQoS){
+		if (!improper[4]){
 			controller.graphWindow.setNodeIcon(node, 1);
 		} else {
 			controller.graphWindow.setNodeIcon(node, 2);	
 		}
 		
-		return goodQoS;
+		return improper;
 	}
 
-	private void detectionMode(Node userWithProblem){
+	private void detectionMode(Node userWithProblem, boolean[] error){
 		//Notifies GUI that we are in detection mode.
 		NetworkWindow.informationWindow.changeNodeMode(node, 1);
 		
@@ -132,10 +130,10 @@ public class Monitor implements Runnable {
 			//Link currentLink = graph.findEdge(path.get(i - 1), path.get(i));
 			
 			//Sets the colour of the node. 
-			controller.graphWindow.setNodeIcon(problemNode, 3);
+			controller.graphWindow.setNodeIcon(currentNode, 3);
 			
 			//Determines whether we have an error.
-			problemNode = determineNode(currentNode, problemNode);
+			problemNode = determineNode(currentNode, problemNode, error);
 			
 			//Notifies users which node we're currently examining.
 			NetworkWindow.informationWindow.setExaminingNode(node, currentNode);
@@ -152,6 +150,10 @@ public class Monitor implements Runnable {
 		controller.graphWindow.setNodeIcon(problemNode, 2);
 		NetworkWindow.informationWindow.setExaminingNode(node, problemNode);
 		NetworkWindow.informationWindow.passDetectionMetrics(node, problemNode, null);
+		for (int i = 0; i < path.size(); i++){
+			Node current = path.get(i);
+			if (current != problemNode) controller.graphWindow.setNodeIcon(current, 1);
+		}
 		sleepThread();
 		
 		//Notifies the controller of its answer.
@@ -163,25 +165,25 @@ public class Monitor implements Runnable {
 		resetColours(graph);
 	}
 
-	private Node determineNode(Node currentNode, Node problemNode) {
+	private Node determineNode(Node currentNode, Node problemNode, boolean[] error) {
 		//Get the QoS Metrics.
 		NetworkWindow.informationWindow.passDetectionMetrics(node, currentNode, null);
 		
 		if (problemNode == null) return currentNode;
 		
 		//Packet Loss
-		if (currentNode.currPacketLoss > problemNode.currPacketLoss)
+		if (currentNode.currPacketLoss > problemNode.currPacketLoss && error[0])
 			problemNode = currentNode;
 		//Jitter
-		if (currentNode.currJitter > problemNode.currJitter)
+		if (currentNode.currJitter > problemNode.currJitter && error[1])
 			problemNode = currentNode;
 		//Latency
-		if (currentNode.currLatency> problemNode.currLatency)
+		if (currentNode.currLatency > problemNode.currLatency && error[2])
 			problemNode = currentNode;
 		//Throughput
-		if (currentNode.currThroughputType.getInternal() < problemNode.currThroughputType.getInternal() ||
+		if ((currentNode.currThroughputType.getInternal() < problemNode.currThroughputType.getInternal() ||
 				(currentNode.currThroughput < problemNode.currThroughput &&
-				currentNode.currThroughputType.getInternal() == problemNode.currThroughputType.getInternal() ))
+				currentNode.currThroughputType.getInternal() == problemNode.currThroughputType.getInternal() )) && error[3])
 			problemNode = currentNode;
 		
 		return problemNode;

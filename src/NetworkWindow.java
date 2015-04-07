@@ -97,6 +97,7 @@ public class NetworkWindow extends JFrame implements ActionListener {
 								   "move.png", "simulate.png"};
 	private String[] iconError = { "dsl_end_error.png", "voip_end_error.png", "edge_error.png", "core_error.png", "gateway_error.png"};
 	private String[] iconYes = { "dsl_end_yes.png", "voip_end_yes.png", "edge_yes.png", "core_yes.png", "gateway_yes.png"};
+	private String[] iconMaybe = { "dsl_end_maybe.png", "voip_end_maybe.png", "edge_maybe.png", "core_maybe.png", "gateway_maybe.png"};
 	private String[] buttonLabels = {"Create DSL Customer Node", 
 			 						 "Create VoIP Customer Node", 
 			 					     "Create Edge Router", 
@@ -625,6 +626,8 @@ public class NetworkWindow extends JFrame implements ActionListener {
 			image = new ImageIcon(System.getProperty("user.dir") + "/" + IMAGE_LOC + "/" + iconYes[selectedNode.getType().getNumVal()]);
 		} else if (status == 2){
 			image = new ImageIcon(System.getProperty("user.dir") + "/" + IMAGE_LOC + "/" + iconError[selectedNode.getType().getNumVal()]);
+		} else if (status == 3){
+			image = new ImageIcon(System.getProperty("user.dir") + "/" + IMAGE_LOC + "/" + iconMaybe[selectedNode.getType().getNumVal()]);
 		}
 
     	//Modify the image.
