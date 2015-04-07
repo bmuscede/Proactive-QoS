@@ -425,6 +425,7 @@ public class NetworkInformationWindow extends JFrame {
 		lblDThroughput[nodeVal].setText("Throughput: " + current.currThroughput + current.currThroughputType.getName()); 
 		
 		//Changes their colours.
+		/*
 		if (qosError[0]) 
 			lblPacketLoss[nodeVal].setForeground(Color.RED);
 		else
@@ -440,6 +441,6 @@ public class NetworkInformationWindow extends JFrame {
 		if (qosError[3]) 
 			lblThroughput[nodeVal].setForeground(Color.RED);
 		else
-			lblThroughput[nodeVal].setForeground(Color.GREEN);
+			lblThroughput[nodeVal].setForeground(Color.GREEN);*/
 	}
 }

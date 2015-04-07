@@ -160,6 +160,9 @@ public class Monitor implements Runnable {
 	}
 
 	private boolean determineNode(Node currentNode) {
+		//Get the QoS Metrics.
+		NetworkWindow.informationWindow.passDetectionMetrics(node, currentNode, null);
+		
 		//Placeholder for later.
 		if (controller.errorNode == currentNode){
 			return true;

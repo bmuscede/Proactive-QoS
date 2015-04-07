@@ -77,4 +77,15 @@ public class Node implements Comparable<Node> {
     {
         return Double.compare(minDistance, other.minDistance);
     }
+
+	public int[] getQos() {
+		int[] qos = new int[4];
+		qos[0] = currPacketLoss;
+		qos[1] = currLatency;
+		qos[2] = currJitter;
+		qos[3] = currThroughput;
+		qos[4] = currThroughputType.getInternal();
+		
+		return qos;
+	}
 }
