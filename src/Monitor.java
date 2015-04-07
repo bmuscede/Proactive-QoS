@@ -131,47 +131,60 @@ public class Monitor implements Runnable {
 			Node currentNode = path.get(i);
 			//Link currentLink = graph.findEdge(path.get(i - 1), path.get(i));
 			
+			//Sets the colour of the node. 
+			controller.graphWindow.setNodeIcon(problemNode, 3);
+			
 			//Determines whether we have an error.
-			boolean isError = determineNode(currentNode);
+			problemNode = determineNode(currentNode, problemNode);
 			
 			//Notifies users which node we're currently examining.
 			NetworkWindow.informationWindow.setExaminingNode(node, currentNode);
 			
 			//Determines if we have an error.
-			NetworkWindow.informationWindow.setErrorStatus(node, isError);
-			if (isError){
-				controller.graphWindow.setNodeIcon(currentNode, 2);
-				problemNode = currentNode;
-				break;
-			} else {
-				controller.graphWindow.setNodeIcon(currentNode, 1);
-			}
+			NetworkWindow.informationWindow.setErrorStatus(node, false);
 			
 			//Sleeps for the thread.
 			sleepThread();
 		}
-		
-		//Sleeps for the thread.
+
+		//Sets the GUI to display the problem node.
+		NetworkWindow.informationWindow.setErrorStatus(node, true);
+		controller.graphWindow.setNodeIcon(problemNode, 2);
+		NetworkWindow.informationWindow.setExaminingNode(node, problemNode);
+		NetworkWindow.informationWindow.passDetectionMetrics(node, problemNode, null);
 		sleepThread();
 		
 		//Notifies the controller of its answer.
 		boolean correct = controller.notifyDetected(problemNode, problemLink);
 		if (!correct){
 			//Will be handled if incorrect.
+			System.out.println("Incorrect node/link.");
 		}
 		resetColours(graph);
 	}
 
-	private boolean determineNode(Node currentNode) {
+	private Node determineNode(Node currentNode, Node problemNode) {
 		//Get the QoS Metrics.
 		NetworkWindow.informationWindow.passDetectionMetrics(node, currentNode, null);
 		
-		//Placeholder for later.
-		if (controller.errorNode == currentNode){
-			return true;
-		}
+		if (problemNode == null) return currentNode;
 		
-		return false;
+		//Packet Loss
+		if (currentNode.currPacketLoss > problemNode.currPacketLoss)
+			problemNode = currentNode;
+		//Jitter
+		if (currentNode.currJitter > problemNode.currJitter)
+			problemNode = currentNode;
+		//Latency
+		if (currentNode.currLatency> problemNode.currLatency)
+			problemNode = currentNode;
+		//Throughput
+		if (currentNode.currThroughputType.getInternal() < problemNode.currThroughputType.getInternal() ||
+				(currentNode.currThroughput < problemNode.currThroughput &&
+				currentNode.currThroughputType.getInternal() == problemNode.currThroughputType.getInternal() ))
+			problemNode = currentNode;
+		
+		return problemNode;
 	}
 
 	private void resetColours(Graph<Node, Link> graph) {
